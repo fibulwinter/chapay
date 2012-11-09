@@ -99,7 +99,6 @@ public class SkyView extends SurfaceView implements SurfaceHolder.Callback {
          * @param b true to run, false to shut down
          */
         private void setRunning(boolean b) {
-            Log.e("Chapay",String.valueOf(mRun));
             if (!mRun && b) {
                 thread.start();
             } else if (mRun && !b) {
