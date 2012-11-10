@@ -30,6 +30,8 @@ public class Checker {
 
     public void move(double dt){
         pos=pos.addScaled(speed, dt);
+        if(speed.getLength()<0.01)speed=new V(0,0);
+        else speed=speed.scale(0.99);
     }
 
     public boolean isTouched(Checker checker) {
@@ -38,5 +40,13 @@ public class Checker {
 
     public void setSpeed(V speed) {
         this.speed = speed;
+    }
+
+    public void setPosX(double x) {
+        this.pos=new V(x,pos.getY());
+    }
+
+    public void setPosY(double y) {
+        this.pos=new V(pos.getX(),y);
     }
 }

@@ -3,10 +3,13 @@ package net.fibulwinter;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import net.fibulwinter.model.Board;
 import net.fibulwinter.model.Checker;
 import net.fibulwinter.model.Rectangle;
 import net.fibulwinter.model.V;
+import net.fibulwinter.view.ScaleModel;
 import net.fibulwinter.view.SkyView;
 import net.fibulwinter.view.VBoard;
 
@@ -37,13 +40,56 @@ public class MyActivity extends Activity {
 
         mLunarThread.setPause(false);
 
-        Board board = new Board(new Rectangle(10,10,310,420));
-        board.add(new Checker(100, 100, 20, 0,10));
-        board.add(new Checker(130,200, 20,0,0));
-        board.add(new Checker(52,52, 40,0,0));
-        VBoard vBoard = new VBoard(board);
+        Rectangle borders = new Rectangle(10, 10, 310, 420);
+        Board board = new Board(borders);
+        for(int i=0;i<10;i++){
+            double r = rand(10,20);
+            V pos=randomPos(board,r);
+            Checker checker = new Checker(pos.getX(), pos.getY(), r, 0, 0/*rand(-5, 5), rand(-5, 5)*/);
+            board.add(checker);
+        }
+//        board.add(new Checker(100, 100, 20, 0,10));
+//        board.add(new Checker(130,200, 20,0,0));
+//        board.add(new Checker(52,52, 40,0,0));
+        final ScaleModel scaleModel = new ScaleModel();
+        final VBoard vBoard = new VBoard(board, scaleModel);
+        mLunarView.setOnTouchListener(new View.OnTouchListener() {
+
+            public boolean onTouch(View view, final MotionEvent motionEvent) {
+                final V pos = scaleModel.fromView(motionEvent.getX(), motionEvent.getY());
+                mLunarThread.doInThread(new Runnable() {
+                    public void run() {
+                        vBoard.click(pos, motionEvent.getAction());
+                    }
+                });
+                return true;
+            }
+        });
+
 
         mLunarThread.setModelVisualizer(board, vBoard);
+    }
+
+    private V randomPos(Board board, double r) {
+        Rectangle borders = board.getBorders();
+        boolean bad;
+        V pos=null;
+        do {
+            pos = new V(rand(borders.getMinX() + r, borders.getMaxX() - r),
+                    rand(borders.getMinY() + r, borders.getMaxY() - r));
+            Checker candidate = new Checker(pos.getX(), pos.getY(), r, 0, 0);
+            bad = false;
+            for (Checker checker : board.getCheckers()) {
+                if (checker.isTouched(candidate)) {
+                    bad=true;
+                }
+            }
+        } while (bad);
+        return pos;
+    }
+
+    private double rand(double min, double max) {
+        return Math.random() * (max-min) + min;
     }
 
 /*    private void reset() {

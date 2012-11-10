@@ -13,4 +13,8 @@ public class ScaleModel {
     public float fromModel(double d){
         return (float)(d*scale);
     }
+
+    public V fromView(float x, float y) {
+        return new V(x/scale,y/scale);
+    }
 }
