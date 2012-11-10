@@ -62,10 +62,10 @@ public class MyActivity extends Activity {
             board.add(checker);
         }
 */
-        Rectangle borders = new Rectangle(10, 10, 780, 1100);
-//        Rectangle borders = new Rectangle(10, 10, 310, 420);
-        Board board = new Board(borders, false);
-        board.generate(10, players);
+//        Rectangle borders = new Rectangle(10, 10, 780, 1100);
+        Rectangle borders = new Rectangle(10, 10, 310, 420);
+        Board board = new Board(borders, Board.BouncingMode.PASS);
+        board.generate(20, 10, players);
 /*
         Rectangle borders = new Rectangle(10, 10, 310, 420);
         Board board = new Board(borders);

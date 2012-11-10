@@ -41,6 +41,25 @@ public class V {
         return new V(x- v.x,y- v.y);
     }
 
+    public double distance(V v){
+        return subtract(v).getLength();
+    }
+
+    public boolean inDistance(V v, double d){
+        double dx = x - v.x;
+        double dy = y - v.y;
+        return dx*dx+dy*dy<=d*d;
+    }
+
+    public V addLength(double dlen){
+        double newLength = getLength() +dlen;
+        if(newLength<=0) return new V(0,0);
+        else {
+            V normal = normal();
+            return new V(normal.x*newLength, normal.getY()*newLength);
+        }
+    }
+
     public V addScaled(V other, double scale) {
         return new V(x+other.x*scale,y+other.y*scale);
     }

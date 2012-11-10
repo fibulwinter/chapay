@@ -1,24 +1,37 @@
 package net.fibulwinter.model;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.fibulwinter.utils.RandUtils;
 import net.fibulwinter.view.IModel;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 
 public class Board implements IModel {
+
+    public enum BouncingMode{
+        PASS(0),
+        STOP(0),
+        BOUNCE(-1);
+
+        private double bounceFactor;
+
+        private BouncingMode(double bounceFactor) {
+            this.bounceFactor = bounceFactor;
+        }
+
+    }
     private Rectangle borders;
-    private boolean bouncing;
+    private BouncingMode bouncingMode=BouncingMode.STOP;
     private List<Checker> checkers = newArrayList();
 
-    public Board(Rectangle borders, boolean bouncing) {
+    public Board(Rectangle borders, BouncingMode bouncingMode) {
         this.borders = borders;
-        this.bouncing = bouncing;
+        this.bouncingMode = bouncingMode;
     }
 
     public List<Checker> getCheckers() {
@@ -33,65 +46,86 @@ public class Board implements IModel {
         return borders;
     }
 
-    public void generate(int count, Iterator<Integer> players){
+    public void generate(double r, int count, Iterator<Integer> players){
         checkers.clear();
         for(int i=0;i<count;i++){
-            double r = 50;
             V pos=randomPos(this,r);
-            Checker checker = new Checker(pos.getX(), pos.getY(), r, 0, 0);
-            checker.setColor(players.next());
+            Checker checker = new Checker(pos.getX(), pos.getY(), r, players.next());
             add(checker);
         }
     }
 
-    private V randomPos(Board board, double r) {
-        Rectangle borders = board.getBorders();
-        boolean bad;
-        V pos=null;
-        do {
-            pos = new V(rand(borders.getMinX() + r, borders.getMaxX() - r),
-                    rand(borders.getMinY() + r, borders.getMaxY() - r));
-            Checker candidate = new Checker(pos.getX(), pos.getY(), r, 0, 0);
-            bad = false;
-            for (Checker checker : board.getCheckers()) {
-                if (checker.isTouched(candidate)) {
-                    bad=true;
+    public void regenerate(){
+        ArrayList<Checker> freeCheckers = newArrayList(checkers);
+        checkers.clear();
+        for(Checker checker: freeCheckers){
+            checker.setPos(randomPos(this,checker.getRadius()));
+            add(checker);
+        }
+    }
+
+    public Checker getClosest(int filterColor, V pos, double maxD){
+        Checker closest=null;
+        double minD=maxD;
+        for(Checker checker:getCheckers()){
+            if(checker.getColor()==filterColor){
+                double d = checker.getPos().subtract(pos).getLength();
+                if(d<minD){
+                    minD=d;
+                    closest=checker;
                 }
             }
-        } while (bad);
-        return pos;
+        }
+        return closest;
     }
 
-    private double rand(double min, double max) {
-        return Math.random() * (max-min) + min;
+    private V randomPos(Board board, final double r) {
+        Rectangle borders = board.getBorders();
+        while (true){
+            final V pos= new V(RandUtils.rand(borders.getMinX() + r, borders.getMaxX() - r),
+                    RandUtils.rand(borders.getMinY() + r, borders.getMaxY() - r));
+            if(Iterables.all(board.getCheckers(), new Predicate<Checker>() {
+                @Override
+                public boolean apply(Checker checker) {
+                    return !pos.inDistance(checker.getPos(), r + checker.getRadius());
+                }
+            })){
+                return pos;
+            }
+        }
     }
 
-
-
-
+    public boolean isAnyMoving(){
+        return Iterables.any(getCheckers(), new Predicate<Checker>() {
+            @Override
+            public boolean apply(Checker checker) {
+                return checker.getSpeed().getLength()>1;
+            }
+        });
+    }
 
     @Override
     public void simulate() {
         for(Checker checker:checkers){
             checker.move(1);
         }
-        if(bouncing){
+        if(bouncingMode!=BouncingMode.PASS){
             for(Checker checker:checkers){
                 if(checker.getPos().getX()-checker.getRadius()<borders.getMinX()){
                     checker.setPosX(borders.getMinX() + checker.getRadius());
-                    checker.setSpeed(checker.getSpeed().scale(-1,1));
+                    checker.setSpeed(checker.getSpeed().scale(bouncingMode.bounceFactor,1));
                 }
                 if(checker.getPos().getX()+checker.getRadius()>borders.getMaxX()){
                     checker.setPosX(borders.getMaxX()-checker.getRadius());
-                    checker.setSpeed(checker.getSpeed().scale(-1,1));
+                    checker.setSpeed(checker.getSpeed().scale(bouncingMode.bounceFactor,1));
                 }
                 if(checker.getPos().getY()-checker.getRadius()<borders.getMinY()){
                     checker.setPosY(borders.getMinY() + checker.getRadius());
-                    checker.setSpeed(checker.getSpeed().scale(1,-1));
+                    checker.setSpeed(checker.getSpeed().scale(1,bouncingMode.bounceFactor));
                 }
                 if(checker.getPos().getY()+checker.getRadius()>borders.getMaxY()){
                     checker.setPosY(borders.getMaxY() - checker.getRadius());
-                    checker.setSpeed(checker.getSpeed().scale(1,-1));
+                    checker.setSpeed(checker.getSpeed().scale(1,bouncingMode.bounceFactor));
                 }
             }
         }
