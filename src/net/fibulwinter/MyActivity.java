@@ -1,6 +1,7 @@
 package net.fibulwinter;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -12,6 +13,10 @@ import net.fibulwinter.model.V;
 import net.fibulwinter.view.ScaleModel;
 import net.fibulwinter.view.SkyView;
 import net.fibulwinter.view.VBoard;
+
+import java.util.List;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class MyActivity extends Activity {
     private SkyView mLunarView;
@@ -40,19 +45,37 @@ public class MyActivity extends Activity {
 
         mLunarThread.setPause(false);
 
+        List<Integer> players=newArrayList(Color.GREEN, Color.RED);
+        Rectangle borders = new Rectangle(-1e10, -1e10, 1e10, 1e10);
+        Board board = new Board(borders);
+        for(int i=0;i<5;i++){
+            Checker checker = new Checker(310/5*i+20, 10+20, 20, 0, 0);
+            checker.setColor(players.get(0));
+            board.add(checker);
+        }
+        for(int i=0;i<5;i++){
+            Checker checker = new Checker(310/5*i+20, 420-10-20, 20, 0, 0);
+            checker.setColor(players.get(1));
+            board.add(checker);
+        }
+
+/*
         Rectangle borders = new Rectangle(10, 10, 310, 420);
         Board board = new Board(borders);
         for(int i=0;i<10;i++){
             double r = rand(10,20);
             V pos=randomPos(board,r);
-            Checker checker = new Checker(pos.getX(), pos.getY(), r, 0, 0/*rand(-5, 5), rand(-5, 5)*/);
+            Checker checker = new Checker(pos.getX(), pos.getY(), r, 0, 0*/
+/*rand(-5, 5), rand(-5, 5)*//*
+);
             board.add(checker);
         }
+*/
 //        board.add(new Checker(100, 100, 20, 0,10));
 //        board.add(new Checker(130,200, 20,0,0));
 //        board.add(new Checker(52,52, 40,0,0));
         final ScaleModel scaleModel = new ScaleModel();
-        final VBoard vBoard = new VBoard(board, scaleModel);
+        final VBoard vBoard = new VBoard(board, scaleModel, players.get(0), players.get(1));
         mLunarView.setOnTouchListener(new View.OnTouchListener() {
 
             public boolean onTouch(View view, final MotionEvent motionEvent) {

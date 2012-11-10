@@ -3,19 +3,30 @@ package net.fibulwinter.view;
 import android.graphics.*;
 import android.util.Log;
 import android.view.MotionEvent;
+import com.google.common.collect.Iterables;
 import net.fibulwinter.model.Board;
 import net.fibulwinter.model.Checker;
 import net.fibulwinter.model.Rectangle;
 import net.fibulwinter.model.V;
 
+import java.util.Iterator;
+import java.util.List;
+
 public class VBoard implements IVisualizer{
 
     private Board board;
     private ScaleModel scaleModel;
+    private final Iterator<Integer> players;
+    private int actingColor;
 
-    public VBoard(Board board, ScaleModel scaleModel) {
+    public VBoard(Board board, ScaleModel scaleModel, int player0, int player1) {
         this.board = board;
         this.scaleModel = scaleModel;
+        this.players = Iterables.cycle(player0,player1).iterator();
+        actingColor=players.next();
+        if(Math.random()>0.5){
+            actingColor=players.next();
+        }
     }
 
     @Override
@@ -42,8 +53,17 @@ public class VBoard implements IVisualizer{
     }
 
     private int getColor(Checker checker){
-        float h = (360f*board.getCheckers().indexOf(checker)) / board.getCheckers().size();
-        return Color.HSVToColor(new float[]{h,1,1});
+        if(actingColor==checker.getColor() && !isInProgress()){
+            return actingColor;
+        }else{
+            float[] hsv = new float[3];
+            Color.colorToHSV(checker.getColor(), hsv);
+            hsv[1]=0.5f;
+            hsv[2]=0.5f;
+            return Color.HSVToColor(hsv);
+        }
+//        float h = (360f*board.getCheckers().indexOf(checker)) / board.getCheckers().size();
+//        return Color.HSVToColor(new float[]{h,1,1});
     }
 
     private void clearCanvas(Canvas canvas) {
@@ -54,21 +74,34 @@ public class VBoard implements IVisualizer{
 
     private V startPos=null;
 
+    private boolean isInProgress(){
+        for(Checker checker:board.getCheckers()){
+            if(checker.getSpeed().getLength()>1){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void click(V pos, int action) {
+        if(isInProgress())return;
         if (action == MotionEvent.ACTION_DOWN) {
             startPos=pos;
         }else if (action == MotionEvent.ACTION_UP) {
             Checker closest=null;
             double minD=50;
             for(Checker checker:board.getCheckers()){
-                double d = checker.getPos().subtract(startPos).getLength();
-                if(d<minD){
-                    minD=d;
-                    closest=checker;
+                if(checker.getColor()==actingColor){
+                    double d = checker.getPos().subtract(startPos).getLength();
+                    if(d<minD){
+                        minD=d;
+                        closest=checker;
+                    }
                 }
             }
             if(closest!=null){
                 closest.setSpeed(pos.subtract(startPos).scale(0.1));
+                actingColor=players.next();
             }
             startPos=null;
         }
