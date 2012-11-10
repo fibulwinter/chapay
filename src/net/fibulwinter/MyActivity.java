@@ -64,7 +64,7 @@ public class MyActivity extends Activity {
 */
 //        Rectangle borders = new Rectangle(10, 10, 780, 1100);
         Rectangle borders = new Rectangle(10, 10, 310, 420);
-        Board board = new Board(borders, Board.BouncingMode.PASS);
+        Board board = new Board(borders, Board.BouncingMode.BOUNCE);
         board.generate(20, 10, players);
 /*
         Rectangle borders = new Rectangle(10, 10, 310, 420);
@@ -81,7 +81,7 @@ public class MyActivity extends Activity {
 //        board.add(new Checker(100, 100, 20, 0,10));
 //        board.add(new Checker(130,200, 20,0,0));
 //        board.add(new Checker(52,52, 40,0,0));
-        final ScaleModel scaleModel = new ScaleModel();
+        final ScaleModel scaleModel = new ScaleModel(borders);
         final VBoard vBoard = new VBoard(board, scaleModel, players);
         mLunarView.setOnTouchListener(new View.OnTouchListener() {
 

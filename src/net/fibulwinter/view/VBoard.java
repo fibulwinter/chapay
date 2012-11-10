@@ -2,6 +2,7 @@ package net.fibulwinter.view;
 
 import android.graphics.*;
 import android.view.MotionEvent;
+import com.google.common.collect.Iterables;
 import net.fibulwinter.model.Board;
 import net.fibulwinter.model.Checker;
 import net.fibulwinter.model.Rectangle;
@@ -31,6 +32,7 @@ public class VBoard implements IVisualizer{
 
     @Override
     public void doDraw(Canvas canvas) {
+        scaleModel.updateViewSize(canvas.getWidth(), canvas.getHeight());
         clearCanvas(canvas);
         drawBorder(canvas);
         Paint paint = new Paint();
@@ -49,7 +51,7 @@ public class VBoard implements IVisualizer{
         Rectangle borders = board.getBorders();
         PointF minPoint = scaleModel.fromModel(new V(borders.getMinX(), borders.getMinY()));
         PointF maxPoint = scaleModel.fromModel(new V(borders.getMaxX(), borders.getMaxY()));
-        canvas.drawRect(minPoint.x,minPoint.y,maxPoint.x,maxPoint.y,paint);
+        canvas.drawRect(minPoint.x,minPoint.y,maxPoint.x-1,maxPoint.y-1,paint);
     }
 
     private int getColor(Checker checker){
@@ -70,17 +72,25 @@ public class VBoard implements IVisualizer{
 
     public void click(V pos, int action) {
         if(board.isAnyMoving())return;
-        if(board.remainingColors().size()<2){
+        Set<Integer> remainingColors = board.remainingColors();
+        if(remainingColors.size()<2){
             board.regenerate();
+            if(remainingColors.size()==1){
+                actingColor=Iterables.getOnlyElement(remainingColors);
+            }
+            while (players.next()!=actingColor);
             return;
         }
         if (action == MotionEvent.ACTION_DOWN) {
             startPos=pos;
         }else if (action == MotionEvent.ACTION_UP && startPos!=null) {
+            V subtract = pos.subtract(startPos);
             Checker closest=board.getClosest(actingColor, startPos, 100);
             if(closest!=null){
-                closest.setSpeed(pos.subtract(startPos).scale(0.1));
-                actingColor=players.next();
+                if(subtract.getLength()>20){
+                    closest.setSpeed(subtract.scale(0.1));
+                    actingColor=players.next();
+                }
             }
             startPos=null;
         }
