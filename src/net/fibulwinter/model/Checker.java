@@ -1,20 +1,22 @@
 package net.fibulwinter.model;
 
 public class Checker {
-    private Pos pos;
+    private V pos;
     private double radius;
-    private Pos speed=new Pos(0,0);
+    private double mass=1;
+    private V speed;
 
-    public Checker(Pos pos, double radius) {
-        this.pos = new Pos(pos.getX(), pos.getY());
+    public Checker(double x, double y, double radius, double vx, double vy) {
+        this.pos = new V(x,y);
         this.radius = radius;
+        this.speed = new V(vx,vy);
     }
 
-    public Pos getPos() {
+    public V getPos() {
         return pos;
     }
 
-    public Pos getSpeed() {
+    public V getSpeed() {
         return speed;
     }
 
@@ -22,7 +24,19 @@ public class Checker {
         return radius;
     }
 
+    public double getMass() {
+        return mass;
+    }
+
     public void move(double dt){
-        pos.addScaled(speed, dt);
+        pos=pos.addScaled(speed, dt);
+    }
+
+    public boolean isTouched(Checker checker) {
+        return pos.subtract(checker.getPos()).getLength()<(checker.getRadius()+radius);
+    }
+
+    public void setSpeed(V speed) {
+        this.speed = speed;
     }
 }

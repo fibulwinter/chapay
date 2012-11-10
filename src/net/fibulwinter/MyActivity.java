@@ -1,17 +1,12 @@
 package net.fibulwinter;
 
 import android.app.Activity;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
-import net.fibulwinter.R;
 import net.fibulwinter.model.Board;
 import net.fibulwinter.model.Checker;
-import net.fibulwinter.model.Pos;
-import net.fibulwinter.view.IModel;
-import net.fibulwinter.view.IVisualizer;
+import net.fibulwinter.model.Rectangle;
+import net.fibulwinter.model.V;
 import net.fibulwinter.view.SkyView;
 import net.fibulwinter.view.VBoard;
 
@@ -42,12 +37,10 @@ public class MyActivity extends Activity {
 
         mLunarThread.setPause(false);
 
-        Board board = new Board();
-        Checker checker1 = new Checker(new Pos(100, 100), 20);
-        checker1.getSpeed().setXY(1,2);
-        board.add(checker1);
-        board.add(new Checker(new Pos(200,400), 10));
-        board.add(new Checker(new Pos(0,0), 40));
+        Board board = new Board(new Rectangle(10,10,310,420));
+        board.add(new Checker(100, 100, 20, 0,10));
+        board.add(new Checker(130,200, 20,0,0));
+        board.add(new Checker(52,52, 40,0,0));
         VBoard vBoard = new VBoard(board);
 
         mLunarThread.setModelVisualizer(board, vBoard);
