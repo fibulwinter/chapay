@@ -36,7 +36,7 @@ public class Checker {
 
     public void move(double dt){
         pos=pos.addScaled(speed, dt);
-        speed = speed.addLength(-0.5);
+        speed = speed.addLength(-0.5*dt);
     }
 
     public boolean isTouched(Checker checker) {

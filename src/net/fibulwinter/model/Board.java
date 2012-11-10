@@ -13,6 +13,8 @@ import static com.google.common.collect.Lists.newLinkedList;
 
 public class Board implements IModel {
 
+    public static final int SIM_STEPS = 20;
+
     public enum BouncingMode{
         PASS(0),
         STOP(0),
@@ -59,7 +61,7 @@ public class Board implements IModel {
         ArrayList<Checker> freeCheckers = newArrayList(checkers);
         checkers.clear();
         for(Checker checker: freeCheckers){
-            checker.setPos(randomPos(this,checker.getRadius()));
+            checker.setPos(randomPos(this, checker.getRadius()));
             add(checker);
         }
     }
@@ -106,8 +108,10 @@ public class Board implements IModel {
 
     @Override
     public void simulate() {
-        for(Checker checker:checkers){
-            checker.move(1);
+        for(int i=0;i< SIM_STEPS;i++){
+            for(Checker checker:checkers){
+                checker.move(1.0/ SIM_STEPS);
+            }
         }
         if(bouncingMode!=BouncingMode.PASS){
             for(Checker checker:checkers){
@@ -160,9 +164,13 @@ public class Board implements IModel {
     }
 
     private void bounce(Checker checkerA, Checker checkerB) {
-        V vAB = checkerB.getPos().subtract(checkerA.getPos()).normal();
-        double speedA1 = checkerA.getSpeed().dot(vAB);
-        double speedB1 = checkerB.getSpeed().dot(vAB);
+        V vAB = checkerB.getPos().subtract(checkerA.getPos());
+        V normalAB = vAB.normal();
+        V touchPoint = checkerA.getPos().addScaled(vAB, checkerA.getRadius()/(checkerA.getRadius()+checkerB.getRadius()));
+        checkerA.setPos(touchPoint.addScaled(normalAB, -checkerA.getRadius()));
+        checkerB.setPos(touchPoint.addScaled(normalAB, checkerB.getRadius()));
+        double speedA1 = checkerA.getSpeed().dot(normalAB);
+        double speedB1 = checkerB.getSpeed().dot(normalAB);
         double speedA2 = speedA1-speedB1;
         double speedB2 = speedB1-speedB1;
         double mass = checkerA.getMass() + checkerB.getMass();
@@ -170,9 +178,9 @@ public class Board implements IModel {
         double speedB3 = 2*speedA2*checkerA.getMass()/mass;
         double speedA4 = speedA3+speedB1;
         double speedB4 = speedB3+speedB1;
-        V psA=checkerA.getSpeed().subtract(vAB.scale(speedA1));
-        V psB=checkerB.getSpeed().subtract(vAB.scale(speedB1));
-        checkerA.setSpeed(psA.addScaled(vAB, speedA4));
-        checkerB.setSpeed(psB.addScaled(vAB, speedB4));
+        V psA=checkerA.getSpeed().subtract(normalAB.scale(speedA1));
+        V psB=checkerB.getSpeed().subtract(normalAB.scale(speedB1));
+        checkerA.setSpeed(psA.addScaled(normalAB, speedA4));
+        checkerB.setSpeed(psB.addScaled(normalAB, speedB4));
     }
 }
