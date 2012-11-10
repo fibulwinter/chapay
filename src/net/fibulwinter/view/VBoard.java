@@ -11,6 +11,7 @@ import net.fibulwinter.model.V;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class VBoard implements IVisualizer{
 
@@ -19,10 +20,10 @@ public class VBoard implements IVisualizer{
     private final Iterator<Integer> players;
     private int actingColor;
 
-    public VBoard(Board board, ScaleModel scaleModel, int player0, int player1) {
+    public VBoard(Board board, ScaleModel scaleModel, Iterator<Integer> players) {
         this.board = board;
         this.scaleModel = scaleModel;
-        this.players = Iterables.cycle(player0,player1).iterator();
+        this.players = players;
         actingColor=players.next();
         if(Math.random()>0.5){
             actingColor=players.next();
@@ -85,11 +86,16 @@ public class VBoard implements IVisualizer{
 
     public void click(V pos, int action) {
         if(isInProgress())return;
+        Set<Integer> remainers = board.remainingColors();
+        if(remainers.size()<2){
+            board.generate(board.getCheckers().size(),players);
+            return;
+        }
         if (action == MotionEvent.ACTION_DOWN) {
             startPos=pos;
-        }else if (action == MotionEvent.ACTION_UP) {
+        }else if (action == MotionEvent.ACTION_UP && startPos!=null) {
             Checker closest=null;
-            double minD=50;
+            double minD=100;
             for(Checker checker:board.getCheckers()){
                 if(checker.getColor()==actingColor){
                     double d = checker.getPos().subtract(startPos).getLength();

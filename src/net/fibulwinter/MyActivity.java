@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import com.google.common.collect.Iterables;
 import net.fibulwinter.model.Board;
 import net.fibulwinter.model.Checker;
 import net.fibulwinter.model.Rectangle;
@@ -14,6 +15,7 @@ import net.fibulwinter.view.ScaleModel;
 import net.fibulwinter.view.SkyView;
 import net.fibulwinter.view.VBoard;
 
+import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -45,7 +47,8 @@ public class MyActivity extends Activity {
 
         mLunarThread.setPause(false);
 
-        List<Integer> players=newArrayList(Color.GREEN, Color.RED);
+        Iterator<Integer> players= Iterables.cycle(newArrayList(Color.GREEN, Color.RED)).iterator();
+/*
         Rectangle borders = new Rectangle(-1e10, -1e10, 1e10, 1e10);
         Board board = new Board(borders);
         for(int i=0;i<5;i++){
@@ -58,7 +61,11 @@ public class MyActivity extends Activity {
             checker.setColor(players.get(1));
             board.add(checker);
         }
-
+*/
+        Rectangle borders = new Rectangle(10, 10, 780, 1100);
+//        Rectangle borders = new Rectangle(10, 10, 310, 420);
+        Board board = new Board(borders, false);
+        board.generate(10, players);
 /*
         Rectangle borders = new Rectangle(10, 10, 310, 420);
         Board board = new Board(borders);
@@ -75,7 +82,7 @@ public class MyActivity extends Activity {
 //        board.add(new Checker(130,200, 20,0,0));
 //        board.add(new Checker(52,52, 40,0,0));
         final ScaleModel scaleModel = new ScaleModel();
-        final VBoard vBoard = new VBoard(board, scaleModel, players.get(0), players.get(1));
+        final VBoard vBoard = new VBoard(board, scaleModel, players);
         mLunarView.setOnTouchListener(new View.OnTouchListener() {
 
             public boolean onTouch(View view, final MotionEvent motionEvent) {
@@ -91,28 +98,6 @@ public class MyActivity extends Activity {
 
 
         mLunarThread.setModelVisualizer(board, vBoard);
-    }
-
-    private V randomPos(Board board, double r) {
-        Rectangle borders = board.getBorders();
-        boolean bad;
-        V pos=null;
-        do {
-            pos = new V(rand(borders.getMinX() + r, borders.getMaxX() - r),
-                    rand(borders.getMinY() + r, borders.getMaxY() - r));
-            Checker candidate = new Checker(pos.getX(), pos.getY(), r, 0, 0);
-            bad = false;
-            for (Checker checker : board.getCheckers()) {
-                if (checker.isTouched(candidate)) {
-                    bad=true;
-                }
-            }
-        } while (bad);
-        return pos;
-    }
-
-    private double rand(double min, double max) {
-        return Math.random() * (max-min) + min;
     }
 
 /*    private void reset() {
