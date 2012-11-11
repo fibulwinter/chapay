@@ -8,15 +8,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import com.google.common.collect.Iterables;
 import net.fibulwinter.model.Board;
-import net.fibulwinter.model.Checker;
-import net.fibulwinter.model.Rectangle;
-import net.fibulwinter.model.V;
+import net.fibulwinter.utils.Rectangle;
+import net.fibulwinter.utils.V;
 import net.fibulwinter.view.ScaleModel;
 import net.fibulwinter.view.SkyView;
 import net.fibulwinter.view.VBoard;
 
 import java.util.Iterator;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 

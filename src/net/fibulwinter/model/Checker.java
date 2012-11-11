@@ -1,61 +1,35 @@
 package net.fibulwinter.model;
 
+import net.fibulwinter.physic.Circle;
+import net.fibulwinter.utils.V;
+
 public class Checker {
     private int color;
-    private V pos;
-    private double radius;
-    private double mass=1;
-    private V speed;
+    private Circle circle;
 
     public Checker(double x, double y, double radius, int color) {
         this.color = color;
-        this.pos = new V(x,y);
-        this.radius = radius;
-        this.speed = new V(0,0);
+        circle=new Circle(new V(x,y), radius, 1.0, new V(0,0));
     }
 
     public int getColor() {
         return color;
     }
 
-    public V getPos() {
-        return pos;
-    }
-
-    public V getSpeed() {
-        return speed;
-    }
-
-    public double getRadius() {
-        return radius;
-    }
-
-    public double getMass() {
-        return mass;
-    }
-
-    public void move(double dt){
-        pos=pos.addScaled(speed, dt);
-        speed = speed.addLength(-0.5*dt);
+    public Circle getCircle() {
+        return circle;
     }
 
     public boolean isTouched(Checker checker) {
-        return pos.inDistance(checker.getPos(), checker.getRadius()+radius);
+        return getCircle().getCenter().inDistance(checker.getCircle().getCenter(), checker.getCircle().getRadius()+getCircle().getRadius());
     }
 
-    public void setSpeed(V speed) {
-        this.speed = speed;
+    public V getCenter(){
+        return circle.getCenter();
     }
 
-    public void setPosX(double x) {
-        this.pos=new V(x,pos.getY());
+    public double getRadius(){
+        return circle.getRadius();
     }
 
-    public void setPosY(double y) {
-        this.pos=new V(pos.getX(),y);
-    }
-
-    public void setPos(V pos) {
-        this.pos = pos;
-    }
 }

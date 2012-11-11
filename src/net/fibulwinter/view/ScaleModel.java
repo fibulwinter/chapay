@@ -1,8 +1,8 @@
 package net.fibulwinter.view;
 
 import android.graphics.PointF;
-import net.fibulwinter.model.Rectangle;
-import net.fibulwinter.model.V;
+import net.fibulwinter.utils.Rectangle;
+import net.fibulwinter.utils.V;
 
 public class ScaleModel {
     private double scale=1;

@@ -41,6 +41,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="com.google.guava:guava-primitives:r03" level="project" />
     <orderEntry type="library" name="com.google.guava:guava-collections:r03" level="project" />
+    <orderEntry type="library" name="com.google.guava:guava:13.0.1" level="project" />
   </component>
 </module>
 

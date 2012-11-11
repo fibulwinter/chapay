@@ -1,4 +1,4 @@
-package net.fibulwinter.model;
+package net.fibulwinter.utils;
 
 public class V {
     private final double x;
@@ -80,5 +80,13 @@ public class V {
     public V limitLength(double maxLength) {
         if(getLength()<=maxLength)return this;
         else return normal().scale(maxLength);
+    }
+
+    public V left() {
+        return new V(y,-x);
+    }
+
+    public V right() {
+        return new V(-y,x);
     }
 }

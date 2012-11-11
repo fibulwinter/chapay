@@ -5,8 +5,8 @@ import android.view.MotionEvent;
 import com.google.common.collect.Iterables;
 import net.fibulwinter.model.Board;
 import net.fibulwinter.model.Checker;
-import net.fibulwinter.model.Rectangle;
-import net.fibulwinter.model.V;
+import net.fibulwinter.utils.Rectangle;
+import net.fibulwinter.utils.V;
 import net.fibulwinter.utils.ColorUtils;
 import net.fibulwinter.utils.RandUtils;
 
@@ -38,7 +38,7 @@ public class VBoard implements IVisualizer{
         Paint paint = new Paint();
         for(Checker checker:board.getCheckers()){
             paint.setColor(getColor(checker));
-            PointF centerPoint = scaleModel.fromModel(checker.getPos());
+            PointF centerPoint = scaleModel.fromModel(checker.getCenter());
             float r = scaleModel.fromModel(checker.getRadius());
             canvas.drawOval(new RectF(centerPoint.x-r,centerPoint.y-r,centerPoint.x+r,centerPoint.y+r), paint);
         }
@@ -88,7 +88,7 @@ public class VBoard implements IVisualizer{
             Checker closest=board.getClosest(actingColor, startPos, 100);
             if(closest!=null){
                 if(subtract.getLength()>20){
-                    closest.setSpeed(subtract.scale(0.1).limitLength(30));
+                    closest.getCircle().setSpeed(subtract.scale(0.1).limitLength(30));
                     actingColor=players.next();
                 }
             }

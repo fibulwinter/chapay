@@ -3,7 +3,12 @@ package net.fibulwinter.model;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.fibulwinter.physic.Continuum;
+import net.fibulwinter.physic.LineObstacle;
+import net.fibulwinter.physic.RectangleBody;
 import net.fibulwinter.utils.RandUtils;
+import net.fibulwinter.utils.Rectangle;
+import net.fibulwinter.utils.V;
 import net.fibulwinter.view.IModel;
 
 import java.util.*;
@@ -12,6 +17,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 
 public class Board implements IModel {
+
+    private Continuum continuum = new Continuum();
 
     public enum BouncingMode{
         PASS(0),
@@ -32,6 +39,12 @@ public class Board implements IModel {
     public Board(Rectangle borders, BouncingMode bouncingMode) {
         this.borders = borders;
         this.bouncingMode = bouncingMode;
+        if(bouncingMode==BouncingMode.BOUNCE){
+            continuum.getBodies().add(new LineObstacle(new V(borders.getMinX(),borders.getMinY()),new V(1,0)));
+            continuum.getBodies().add(new LineObstacle(new V(borders.getMinX(),borders.getMinY()),new V(0,1)));
+            continuum.getBodies().add(new LineObstacle(new V(borders.getMaxX(),borders.getMaxY()),new V(-1,0)));
+            continuum.getBodies().add(new LineObstacle(new V(borders.getMaxX(),borders.getMaxY()),new V(0,-1)));
+        }
     }
 
     public List<Checker> getCheckers() {
@@ -40,6 +53,7 @@ public class Board implements IModel {
 
     public void add(Checker checker){
         checkers.add(checker);
+        continuum.getBodies().add(checker.getCircle());
     }
 
     public Rectangle getBorders() {
@@ -58,8 +72,9 @@ public class Board implements IModel {
     public void regenerate(){
         ArrayList<Checker> freeCheckers = newArrayList(checkers);
         checkers.clear();
+        continuum.getBodies().clear();//todo only checkers
         for(Checker checker: freeCheckers){
-            checker.setPos(randomPos(this, checker.getRadius()));
+            checker.getCircle().setCenter(randomPos(this, checker.getRadius()));
             add(checker);
         }
     }
@@ -69,7 +84,7 @@ public class Board implements IModel {
         double minD=maxD;
         for(Checker checker:getCheckers()){
             if(checker.getColor()==filterColor){
-                double d = checker.getPos().subtract(pos).getLength();
+                double d = checker.getCenter().subtract(pos).getLength();
                 if(d<minD){
                     minD=d;
                     closest=checker;
@@ -87,7 +102,7 @@ public class Board implements IModel {
             if(Iterables.all(board.getCheckers(), new Predicate<Checker>() {
                 @Override
                 public boolean apply(Checker checker) {
-                    return !pos.inDistance(checker.getPos(), r + checker.getRadius());
+                    return !pos.inDistance(checker.getCenter(), r + checker.getRadius());
                 }
             })){
                 return pos;
@@ -99,16 +114,15 @@ public class Board implements IModel {
         return Iterables.any(getCheckers(), new Predicate<Checker>() {
             @Override
             public boolean apply(Checker checker) {
-                return checker.getSpeed().getLength()>1;
+                return checker.getCircle().getSpeed().getLength()>1;
             }
         });
     }
 
     @Override
     public void simulate() {
-        for(Checker checker:checkers){
-            checker.move(1.0);
-        }
+        continuum.simulate(1.0);
+/*
         if(bouncingMode!=BouncingMode.PASS){
             for(Checker checker:checkers){
                 if(checker.getPos().getX()-checker.getRadius()<borders.getMinX()){
@@ -138,6 +152,7 @@ public class Board implements IModel {
                 }
             }
         }
+*/
     }
 
     public Set<Integer> remainingColors(){
@@ -153,30 +168,9 @@ public class Board implements IModel {
 
 
     private boolean isOutside(Checker checker){
-        return (checker.getPos().getX()+checker.getRadius()<borders.getMinX()) ||
-                (checker.getPos().getX()-checker.getRadius()>borders.getMaxX()) ||
-                (checker.getPos().getY()+checker.getRadius()<borders.getMinY()) ||
-                (checker.getPos().getY()-checker.getRadius()>borders.getMaxY());
-    }
-
-    private void bounce(Checker checkerA, Checker checkerB) {
-        V vAB = checkerB.getPos().subtract(checkerA.getPos());
-        V normalAB = vAB.normal();
-        V touchPoint = checkerA.getPos().addScaled(vAB, checkerA.getRadius()/(checkerA.getRadius()+checkerB.getRadius()));
-        checkerA.setPos(touchPoint.addScaled(normalAB, -checkerA.getRadius()));
-        checkerB.setPos(touchPoint.addScaled(normalAB, checkerB.getRadius()));
-        double speedA1 = checkerA.getSpeed().dot(normalAB);
-        double speedB1 = checkerB.getSpeed().dot(normalAB);
-        double speedA2 = speedA1-speedB1;
-        double speedB2 = speedB1-speedB1;
-        double mass = checkerA.getMass() + checkerB.getMass();
-        double speedA3 = speedA2*(checkerA.getMass()-checkerB.getMass())/mass;
-        double speedB3 = 2*speedA2*checkerA.getMass()/mass;
-        double speedA4 = speedA3+speedB1;
-        double speedB4 = speedB3+speedB1;
-        V psA=checkerA.getSpeed().subtract(normalAB.scale(speedA1));
-        V psB=checkerB.getSpeed().subtract(normalAB.scale(speedB1));
-        checkerA.setSpeed(psA.addScaled(normalAB, speedA4));
-        checkerB.setSpeed(psB.addScaled(normalAB, speedB4));
+        return (checker.getCenter().getX()+checker.getRadius()<borders.getMinX()) ||
+                (checker.getCenter().getX()-checker.getRadius()>borders.getMaxX()) ||
+                (checker.getCenter().getY()+checker.getRadius()<borders.getMinY()) ||
+                (checker.getCenter().getY()-checker.getRadius()>borders.getMaxY());
     }
 }

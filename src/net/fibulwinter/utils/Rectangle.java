@@ -1,4 +1,4 @@
-package net.fibulwinter.model;
+package net.fibulwinter.utils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
