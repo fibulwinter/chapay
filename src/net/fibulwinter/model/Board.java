@@ -13,8 +13,6 @@ import static com.google.common.collect.Lists.newLinkedList;
 
 public class Board implements IModel {
 
-    public static final int SIM_STEPS = 20;
-
     public enum BouncingMode{
         PASS(0),
         STOP(0),
@@ -108,10 +106,8 @@ public class Board implements IModel {
 
     @Override
     public void simulate() {
-        for(int i=0;i< SIM_STEPS;i++){
-            for(Checker checker:checkers){
-                checker.move(1.0/ SIM_STEPS);
-            }
+        for(Checker checker:checkers){
+            checker.move(1.0);
         }
         if(bouncingMode!=BouncingMode.PASS){
             for(Checker checker:checkers){

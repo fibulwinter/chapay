@@ -88,7 +88,7 @@ public class VBoard implements IVisualizer{
             Checker closest=board.getClosest(actingColor, startPos, 100);
             if(closest!=null){
                 if(subtract.getLength()>20){
-                    closest.setSpeed(subtract.scale(0.1));
+                    closest.setSpeed(subtract.scale(0.1).limitLength(30));
                     actingColor=players.next();
                 }
             }

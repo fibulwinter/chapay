@@ -76,4 +76,9 @@ public class V {
     public String toString() {
         return "("+x+" "+y+")";
     }
+
+    public V limitLength(double maxLength) {
+        if(getLength()<=maxLength)return this;
+        else return normal().scale(maxLength);
+    }
 }
