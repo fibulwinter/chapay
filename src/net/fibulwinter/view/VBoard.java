@@ -5,6 +5,8 @@ import android.view.MotionEvent;
 import com.google.common.collect.Iterables;
 import net.fibulwinter.model.Board;
 import net.fibulwinter.model.Checker;
+import net.fibulwinter.physic.Body;
+import net.fibulwinter.physic.LineObstacle;
 import net.fibulwinter.utils.Rectangle;
 import net.fibulwinter.utils.V;
 import net.fibulwinter.utils.ColorUtils;
@@ -34,7 +36,8 @@ public class VBoard implements IVisualizer{
     public void doDraw(Canvas canvas) {
         scaleModel.updateViewSize(canvas.getWidth(), canvas.getHeight());
         clearCanvas(canvas);
-        drawBorder(canvas);
+//        drawBorder(canvas);
+        drawObstacles(canvas);
         Paint paint = new Paint();
         for(Checker checker:board.getCheckers()){
             paint.setColor(getColor(checker));
@@ -52,6 +55,22 @@ public class VBoard implements IVisualizer{
         PointF minPoint = scaleModel.fromModel(new V(borders.getMinX(), borders.getMinY()));
         PointF maxPoint = scaleModel.fromModel(new V(borders.getMaxX(), borders.getMaxY()));
         canvas.drawRect(minPoint.x,minPoint.y,maxPoint.x-1,maxPoint.y-1,paint);
+    }
+
+    private void drawObstacles(Canvas canvas) {
+        Paint paint = new Paint();
+        paint.setColor(Color.BLUE);
+        paint.setStyle(Paint.Style.STROKE);
+        for(Body body:board.getContinuum().getBodies()){
+            if(body instanceof LineObstacle){
+                LineObstacle lineObstacle = (LineObstacle) body;
+                V p1 = lineObstacle.getCenter().addScaled(lineObstacle.getNormal().left(), lineObstacle.getA());
+                V p2 = lineObstacle.getCenter().addScaled(lineObstacle.getNormal().right(), lineObstacle.getA());
+                PointF pf1 = scaleModel.fromModel(p1);
+                PointF pf2 = scaleModel.fromModel(p2);
+                canvas.drawLine(pf1.x,pf1.y,pf2.x,pf2.y,paint);
+            }
+        }
     }
 
     private int getColor(Checker checker){

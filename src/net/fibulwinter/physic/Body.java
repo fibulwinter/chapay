@@ -7,6 +7,7 @@ public abstract class Body {
     private V center;
     private V speed;
     private double mass;
+    private boolean fixed;
 
     public Body(V center, double mass, V speed) {
         this.center = center;
@@ -31,8 +32,13 @@ public abstract class Body {
     }
 
     public boolean isFixed(){
-        return false;
+        return fixed;
     }
+
+    public void setFixed() {
+        fixed=true;
+    }
+
 
     public void move(double timeStep) {
         if(!isFixed()){

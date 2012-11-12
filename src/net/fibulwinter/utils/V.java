@@ -89,4 +89,8 @@ public class V {
     public V right() {
         return new V(-y,x);
     }
+
+    public static V middle(V p1, V p2) {
+        return new V((p1.x+p2.x)/2,(p1.y+p2.y)/2);
+    }
 }

@@ -15,6 +15,7 @@ import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
+import static net.fibulwinter.utils.RandUtils.mix;
 
 public class Board implements IModel {
 
@@ -39,11 +40,25 @@ public class Board implements IModel {
     public Board(Rectangle borders, BouncingMode bouncingMode) {
         this.borders = borders;
         this.bouncingMode = bouncingMode;
+        continuum.getBodies().addAll(LineObstacle.asClosed(
+                new V(mix(borders.getMinX(), borders.getMaxX(),0.33), borders.getMidY()),
+                new V(mix(borders.getMinX(), borders.getMaxX(),0.66), borders.getMidY()),
+                new V(borders.getMidX(), mix(borders.getMinY(),borders.getMaxY(),0.33))
+        ));
         if(bouncingMode==BouncingMode.BOUNCE){
-            continuum.getBodies().add(new LineObstacle(new V(borders.getMinX(),borders.getMinY()),new V(1,0)));
-            continuum.getBodies().add(new LineObstacle(new V(borders.getMinX(),borders.getMinY()),new V(0,1)));
-            continuum.getBodies().add(new LineObstacle(new V(borders.getMaxX(),borders.getMaxY()),new V(-1,0)));
-            continuum.getBodies().add(new LineObstacle(new V(borders.getMaxX(),borders.getMaxY()),new V(0,-1)));
+            continuum.getBodies().add(LineObstacle.fromTo(
+                    new V(borders.getMinX(),borders.getMinY()),new V(borders.getMaxX(),borders.getMinY())));
+            continuum.getBodies().add(LineObstacle.fromTo(
+                    new V(borders.getMaxX(),borders.getMinY()),new V(borders.getMaxX(),borders.getMaxY())));
+            continuum.getBodies().add(LineObstacle.fromTo(
+                    new V(borders.getMaxX(),borders.getMaxY()),new V(borders.getMinX(),borders.getMaxY())));
+            continuum.getBodies().add(LineObstacle.fromTo(
+                    new V(borders.getMinX(),borders.getMaxY()),new V(borders.getMinX(),borders.getMinY())));
+
+//            continuum.getBodies().add(new LineObstacle(new V(borders.getMinX(),borders.getMinY()),new V(1,0)));
+//            continuum.getBodies().add(new LineObstacle(new V(borders.getMinX(),borders.getMinY()),new V(0,1)));
+//            continuum.getBodies().add(new LineObstacle(new V(borders.getMaxX(),borders.getMaxY()),new V(-1,0)));
+//            continuum.getBodies().add(new LineObstacle(new V(borders.getMaxX(),borders.getMaxY()),new V(0,-1)));
         }
     }
 
@@ -54,6 +69,10 @@ public class Board implements IModel {
     public void add(Checker checker){
         checkers.add(checker);
         continuum.getBodies().add(checker.getCircle());
+    }
+
+    public Continuum getContinuum() {
+        return continuum;
     }
 
     public Rectangle getBorders() {
@@ -70,13 +89,19 @@ public class Board implements IModel {
     }
 
     public void regenerate(){
-        ArrayList<Checker> freeCheckers = newArrayList(checkers);
-        checkers.clear();
-        continuum.getBodies().clear();//todo only checkers
-        for(Checker checker: freeCheckers){
+        for(Checker checker: removeAllCheckers()){
             checker.getCircle().setCenter(randomPos(this, checker.getRadius()));
             add(checker);
         }
+    }
+
+    private ArrayList<Checker> removeAllCheckers() {
+        ArrayList<Checker> freeCheckers = newArrayList(checkers);
+        for(Checker checker:checkers){
+            continuum.getBodies().remove(checker.getCircle());
+        }
+        checkers.clear();
+        return freeCheckers;
     }
 
     public Checker getClosest(int filterColor, V pos, double maxD){

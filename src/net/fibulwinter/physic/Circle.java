@@ -18,4 +18,5 @@ public class Circle extends Body{
     public void avoid(V touchPoint) {
         setCenter(touchPoint.addScaled(getCenter().subtract(touchPoint).normal(), radius));
     }
+
 }

@@ -1,6 +1,7 @@
 package net.fibulwinter.utils;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static net.fibulwinter.utils.RandUtils.mix;
 
 public class Rectangle {
     private final double minX;
@@ -39,5 +40,13 @@ public class Rectangle {
 
     public double getHeight() {
         return maxY-minY;
+    }
+
+    public double getMidY() {
+        return mix(minY, maxY, 0.5);
+    }
+
+    public double getMidX() {
+        return mix(minX, maxX, 0.5);
     }
 }

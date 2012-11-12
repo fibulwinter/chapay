@@ -11,7 +11,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class Continuum {
-    private static double TIME_QUANTUM=1;
+    private static double TIME_QUANTUM=0.05;
 
     private List<Body> bodies=newArrayList();
     private double time=0.0;
@@ -62,11 +62,21 @@ public class Continuum {
             new PairOperation<Circle, LineObstacle, V>(Circle.class, LineObstacle.class) {
                 @Override
                 public Optional<V> performWithPair(Circle circle, LineObstacle line) {
-                    if(circle.getCenter().subtract(line.getCenter()).dot(line.getNormal())>circle.getRadius()){
+                    double distFromLine = circle.getCenter().subtract(line.getCenter()).dot(line.getNormal());
+                    if(distFromLine<0 || distFromLine>circle.getRadius()){
                         return Optional.absent();
                     }else{
                         V left = line.getNormal().left();
                         double a = left.dot(circle.getCenter().subtract(line.getCenter()));
+                        if(Math.abs(a)>line.getA()){
+                            if(line.getP1().inDistance(circle.getCenter(),circle.getRadius())){
+                                return Optional.of(line.getP1());
+                            }
+                            if(line.getP2().inDistance(circle.getCenter(),circle.getRadius())){
+                                return Optional.of(line.getP2());
+                            }
+                            return Optional.absent();
+                        }
                         return Optional.of(line.getCenter().addScaled(left, a));
                     }
                 }
