@@ -1,8 +1,6 @@
 package net.fibulwinter.physic;
 
-import android.util.Log;
 import com.google.common.base.Optional;
-import net.fibulwinter.model.Checker;
 import net.fibulwinter.utils.PairOperation;
 import net.fibulwinter.utils.V;
 
@@ -11,7 +9,7 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class Continuum {
-    private static double TIME_QUANTUM=0.05;
+    private static double TIME_QUANTUM=1;
 
     private List<Body> bodies=newArrayList();
     private double time=0.0;
@@ -46,58 +44,70 @@ public class Continuum {
     }
 
     private void checkInteraction(Body body1, Body body2) {
-        Optional<V> touchPoint = PairOperation.applySingle(body1, body2,
-            new PairOperation<Circle, Circle, V>(Circle.class, Circle.class) {
+        Optional<V> touchPoint = PairOperation.applySingle(body1.getShape(), body2.getShape(),
+            new PairOperation<Disk, Disk, V>(Disk.class, Disk.class) {
                 @Override
-                public Optional<V> performWithPair(Circle circleA, Circle circleB) {
-                    double sumRadiuses = circleA.getRadius() + circleB.getRadius();
-                    if (circleA.getCenter().inDistance(circleB.getCenter(), sumRadiuses)) {
-                        V vAB = circleB.getCenter().subtract(circleA.getCenter());
-                        return Optional.of(circleA.getCenter().addScaled(vAB, circleA.getRadius() / sumRadiuses));
+                public Optional<V> performWithPair(Disk diskA, Disk diskB) {
+                    double sumRadiuses = diskA.getRadius() + diskB.getRadius();
+                    if (diskA.getCenter().inDistance(diskB.getCenter(), sumRadiuses)) {
+                        V vAB = diskB.getCenter().subtract(diskA.getCenter());
+                        return Optional.of(diskA.getCenter().addScaled(vAB, diskA.getRadius() / sumRadiuses));
                     } else {
                         return Optional.absent();
                     }
                 }
             },
-            new PairOperation<Circle, LineObstacle, V>(Circle.class, LineObstacle.class) {
+            new PairOperation<Disk, LineSegment, V>(Disk.class, LineSegment.class) {
                 @Override
-                public Optional<V> performWithPair(Circle circle, LineObstacle line) {
-                    double distFromLine = circle.getCenter().subtract(line.getCenter()).dot(line.getNormal());
-                    if(distFromLine<0 || distFromLine>circle.getRadius()){
+                public Optional<V> performWithPair(Disk disk, LineSegment lineSegment) {
+                    double distFromLine = disk.getCenter().subtract(lineSegment.getCenter()).dot(lineSegment.getNormal());
+                    if(distFromLine<0 || distFromLine>disk.getRadius()){
                         return Optional.absent();
                     }else{
-                        V left = line.getNormal().left();
-                        double a = left.dot(circle.getCenter().subtract(line.getCenter()));
-                        if(Math.abs(a)>line.getA()){
-                            if(line.getP1().inDistance(circle.getCenter(),circle.getRadius())){
+                        V left = lineSegment.getNormal().left();
+                        double a = left.dot(disk.getCenter().subtract(lineSegment.getCenter()));
+                        if(Math.abs(a)>lineSegment.getLength()/2){
+/*
+                            if(line.getP1().inDistance(disk.getCenter(),disk.getRadius())){
                                 return Optional.of(line.getP1());
                             }
-                            if(line.getP2().inDistance(circle.getCenter(),circle.getRadius())){
+                            if(line.getP2().inDistance(disk.getCenter(),disk.getRadius())){
                                 return Optional.of(line.getP2());
                             }
+*/
                             return Optional.absent();
                         }
-                        return Optional.of(line.getCenter().addScaled(left, a));
+                        return Optional.of(lineSegment.getCenter().addScaled(left, a));
                     }
                 }
             }
         );
         if(touchPoint.isPresent()){
-            body1.avoid(touchPoint.get());
-            body2.avoid(touchPoint.get());
+            body1.getShape().avoid(touchPoint.get());
+            body2.getShape().avoid(touchPoint.get());
             PairOperation.applySingle(body1, body2,
-                    new PairOperation<Circle, Circle, V>(Circle.class, Circle.class) {
+                    new PairOperation<DynamicBody, DynamicBody, V>(DynamicBody.class, DynamicBody.class) {
                         @Override
-                        public Optional<V> performWithPair(Circle circleA, Circle circleB) {
-                            interactCircles(circleA,circleB);
+                        public Optional<V> performWithPair(DynamicBody dynamicBodyA, DynamicBody dynamicBodyB) {
+                            interactCircles(dynamicBodyA, dynamicBodyB);
                             return Optional.absent();
                         }
                     },
-                    new PairOperation<Circle, LineObstacle, V>(Circle.class, LineObstacle.class) {
+                    new PairOperation<DynamicBody, StaticBody, V>(DynamicBody.class, StaticBody.class) {
                         @Override
-                        public Optional<V> performWithPair(Circle circle, LineObstacle line) {
-                            double resultSpeedOut = -circle.getSpeed().dot(line.getNormal());
-                            circle.setSpeed(circle.getSpeed().add(line.getNormal().scale(resultSpeedOut*2)));
+                        public Optional<V> performWithPair(DynamicBody dynamicBody, StaticBody staticBody) {
+                            if(staticBody.getShape() instanceof LineSegment){
+                                LineSegment lineSegment = (LineSegment) staticBody.getShape();
+
+                                double resultSpeedOut = -dynamicBody.getSpeed().dot(lineSegment.getNormal());
+                                dynamicBody.setSpeed(dynamicBody.getSpeed().add(lineSegment.getNormal().scale(resultSpeedOut*2)));
+                            }else if(staticBody.getShape() instanceof Disk){
+                                Disk staticDisk = (Disk) staticBody.getShape();
+
+                                V normal = staticDisk.getCenter().subtract(dynamicBody.getCenter()).normal();
+                                double resultSpeedOut = -dynamicBody.getSpeed().dot(normal);
+                                dynamicBody.setSpeed(dynamicBody.getSpeed().add(normal.scale(resultSpeedOut * 2)));
+                            }
                             return Optional.absent();
                         }
                     }
@@ -105,7 +115,7 @@ public class Continuum {
         }
     }
 
-    private void interactCircles(Circle bodyA, Circle bodyB) {
+    private void interactCircles(DynamicBody bodyA, DynamicBody bodyB) {
         V vAB = bodyB.getCenter().subtract(bodyA.getCenter());
         V normalAB = vAB.normal();
         double speedA1 = bodyA.getSpeed().dot(normalAB);

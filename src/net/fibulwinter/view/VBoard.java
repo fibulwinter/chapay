@@ -5,8 +5,7 @@ import android.view.MotionEvent;
 import com.google.common.collect.Iterables;
 import net.fibulwinter.model.Board;
 import net.fibulwinter.model.Checker;
-import net.fibulwinter.physic.Body;
-import net.fibulwinter.physic.LineObstacle;
+import net.fibulwinter.physic.*;
 import net.fibulwinter.utils.Rectangle;
 import net.fibulwinter.utils.V;
 import net.fibulwinter.utils.ColorUtils;
@@ -41,8 +40,9 @@ public class VBoard implements IVisualizer{
         Paint paint = new Paint();
         for(Checker checker:board.getCheckers()){
             paint.setColor(getColor(checker));
-            PointF centerPoint = scaleModel.fromModel(checker.getCenter());
-            float r = scaleModel.fromModel(checker.getRadius());
+            Disk disk = checker.getDisk();
+            PointF centerPoint = scaleModel.fromModel(disk.getCenter());
+            float r = scaleModel.fromModel(disk.getRadius());
             canvas.drawOval(new RectF(centerPoint.x-r,centerPoint.y-r,centerPoint.x+r,centerPoint.y+r), paint);
         }
     }
@@ -62,13 +62,14 @@ public class VBoard implements IVisualizer{
         paint.setColor(Color.BLUE);
         paint.setStyle(Paint.Style.STROKE);
         for(Body body:board.getContinuum().getBodies()){
-            if(body instanceof LineObstacle){
-                LineObstacle lineObstacle = (LineObstacle) body;
-                V p1 = lineObstacle.getCenter().addScaled(lineObstacle.getNormal().left(), lineObstacle.getA());
-                V p2 = lineObstacle.getCenter().addScaled(lineObstacle.getNormal().right(), lineObstacle.getA());
-                PointF pf1 = scaleModel.fromModel(p1);
-                PointF pf2 = scaleModel.fromModel(p2);
-                canvas.drawLine(pf1.x,pf1.y,pf2.x,pf2.y,paint);
+            if(body instanceof StaticBody){
+                Shape shape = body.getShape();
+                if(shape instanceof LineSegment){
+                    LineSegment lineObstacle = (LineSegment) shape;
+                    PointF pf1 = scaleModel.fromModel(lineObstacle.getP1());
+                    PointF pf2 = scaleModel.fromModel(lineObstacle.getP2());
+                    canvas.drawLine(pf1.x,pf1.y,pf2.x,pf2.y,paint);
+                }
             }
         }
     }
@@ -107,7 +108,7 @@ public class VBoard implements IVisualizer{
             Checker closest=board.getClosest(actingColor, startPos, 100);
             if(closest!=null){
                 if(subtract.getLength()>20){
-                    closest.getCircle().setSpeed(subtract.scale(0.1).limitLength(30));
+                    closest.getDynamicBody().setSpeed(subtract.scale(0.1).limitLength(30));
                     actingColor=players.next();
                 }
             }

@@ -4,23 +4,22 @@ import com.google.common.base.Optional;
 import net.fibulwinter.utils.V;
 
 public abstract class Body {
-    private V center;
+    private Shape shape;
     private V speed;
     private double mass;
-    private boolean fixed;
 
-    public Body(V center, double mass, V speed) {
-        this.center = center;
+    public Body(Shape shape, double mass, V speed) {
+        this.shape = shape;
         this.mass = mass;
         this.speed = speed;
     }
 
-    public V getCenter(){
-        return center;
+    public Shape getShape() {
+        return shape;
     }
 
-    public void setCenter(V center) {
-        this.center = center;
+    public V getCenter(){
+        return shape.getCenter();
     }
 
     public V getSpeed() {
@@ -31,23 +30,10 @@ public abstract class Body {
         this.speed = speed;
     }
 
-    public boolean isFixed(){
-        return fixed;
-    }
+    public abstract boolean isFixed();
 
-    public void setFixed() {
-        fixed=true;
-    }
+    public abstract void move(double timeStep);
 
-
-    public void move(double timeStep) {
-        if(!isFixed()){
-            center=center.addScaled(speed, timeStep);
-            speed = speed.addLength(-0.5*timeStep);
-        }
-    }
-
-    public abstract void avoid(V touchPoint);
 
     public double getMass() {
         return mass;

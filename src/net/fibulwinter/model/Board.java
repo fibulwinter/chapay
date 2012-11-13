@@ -4,8 +4,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.fibulwinter.physic.Continuum;
-import net.fibulwinter.physic.LineObstacle;
-import net.fibulwinter.physic.RectangleBody;
+import net.fibulwinter.physic.Disk;
+import net.fibulwinter.physic.StaticBody;
 import net.fibulwinter.utils.RandUtils;
 import net.fibulwinter.utils.Rectangle;
 import net.fibulwinter.utils.V;
@@ -40,25 +40,25 @@ public class Board implements IModel {
     public Board(Rectangle borders, BouncingMode bouncingMode) {
         this.borders = borders;
         this.bouncingMode = bouncingMode;
-        continuum.getBodies().addAll(LineObstacle.asClosed(
-                new V(mix(borders.getMinX(), borders.getMaxX(),0.33), borders.getMidY()),
-                new V(mix(borders.getMinX(), borders.getMaxX(),0.66), borders.getMidY()),
-                new V(borders.getMidX(), mix(borders.getMinY(),borders.getMaxY(),0.33))
+        continuum.getBodies().addAll(StaticBody.asClosed(
+                new V(mix(borders.getMinX(), borders.getMaxX(), 0.33), borders.getMidY()),
+                new V(mix(borders.getMinX(), borders.getMaxX(), 0.66), borders.getMidY()),
+                new V(borders.getMidX(), mix(borders.getMinY(), borders.getMaxY(), 0.33))
         ));
         if(bouncingMode==BouncingMode.BOUNCE){
-            continuum.getBodies().add(LineObstacle.fromTo(
-                    new V(borders.getMinX(),borders.getMinY()),new V(borders.getMaxX(),borders.getMinY())));
-            continuum.getBodies().add(LineObstacle.fromTo(
-                    new V(borders.getMaxX(),borders.getMinY()),new V(borders.getMaxX(),borders.getMaxY())));
-            continuum.getBodies().add(LineObstacle.fromTo(
-                    new V(borders.getMaxX(),borders.getMaxY()),new V(borders.getMinX(),borders.getMaxY())));
-            continuum.getBodies().add(LineObstacle.fromTo(
-                    new V(borders.getMinX(),borders.getMaxY()),new V(borders.getMinX(),borders.getMinY())));
+            continuum.getBodies().add(StaticBody.fromTo(
+                    new V(borders.getMinX(), borders.getMinY()), new V(borders.getMaxX(), borders.getMinY())));
+            continuum.getBodies().add(StaticBody.fromTo(
+                    new V(borders.getMaxX(), borders.getMinY()), new V(borders.getMaxX(), borders.getMaxY())));
+            continuum.getBodies().add(StaticBody.fromTo(
+                    new V(borders.getMaxX(), borders.getMaxY()), new V(borders.getMinX(), borders.getMaxY())));
+            continuum.getBodies().add(StaticBody.fromTo(
+                    new V(borders.getMinX(), borders.getMaxY()), new V(borders.getMinX(), borders.getMinY())));
 
-//            continuum.getBodies().add(new LineObstacle(new V(borders.getMinX(),borders.getMinY()),new V(1,0)));
-//            continuum.getBodies().add(new LineObstacle(new V(borders.getMinX(),borders.getMinY()),new V(0,1)));
-//            continuum.getBodies().add(new LineObstacle(new V(borders.getMaxX(),borders.getMaxY()),new V(-1,0)));
-//            continuum.getBodies().add(new LineObstacle(new V(borders.getMaxX(),borders.getMaxY()),new V(0,-1)));
+//            continuum.getBodies().add(new StaticBody(new V(borders.getMinX(),borders.getMinY()),new V(1,0)));
+//            continuum.getBodies().add(new StaticBody(new V(borders.getMinX(),borders.getMinY()),new V(0,1)));
+//            continuum.getBodies().add(new StaticBody(new V(borders.getMaxX(),borders.getMaxY()),new V(-1,0)));
+//            continuum.getBodies().add(new StaticBody(new V(borders.getMaxX(),borders.getMaxY()),new V(0,-1)));
         }
     }
 
@@ -68,7 +68,7 @@ public class Board implements IModel {
 
     public void add(Checker checker){
         checkers.add(checker);
-        continuum.getBodies().add(checker.getCircle());
+        continuum.getBodies().add(checker.getDynamicBody());
     }
 
     public Continuum getContinuum() {
@@ -90,7 +90,8 @@ public class Board implements IModel {
 
     public void regenerate(){
         for(Checker checker: removeAllCheckers()){
-            checker.getCircle().setCenter(randomPos(this, checker.getRadius()));
+            Disk disk = checker.getDisk();
+            disk.setCenter(randomPos(this, disk.getRadius()));
             add(checker);
         }
     }
@@ -98,7 +99,7 @@ public class Board implements IModel {
     private ArrayList<Checker> removeAllCheckers() {
         ArrayList<Checker> freeCheckers = newArrayList(checkers);
         for(Checker checker:checkers){
-            continuum.getBodies().remove(checker.getCircle());
+            continuum.getBodies().remove(checker.getDynamicBody());
         }
         checkers.clear();
         return freeCheckers;
@@ -109,7 +110,7 @@ public class Board implements IModel {
         double minD=maxD;
         for(Checker checker:getCheckers()){
             if(checker.getColor()==filterColor){
-                double d = checker.getCenter().subtract(pos).getLength();
+                double d = checker.getDisk().getCenter().subtract(pos).getLength();
                 if(d<minD){
                     minD=d;
                     closest=checker;
@@ -127,7 +128,8 @@ public class Board implements IModel {
             if(Iterables.all(board.getCheckers(), new Predicate<Checker>() {
                 @Override
                 public boolean apply(Checker checker) {
-                    return !pos.inDistance(checker.getCenter(), r + checker.getRadius());
+                    Disk disk = checker.getDisk();
+                    return !pos.inDistance(disk.getCenter(), r + disk.getRadius());
                 }
             })){
                 return pos;
@@ -139,7 +141,7 @@ public class Board implements IModel {
         return Iterables.any(getCheckers(), new Predicate<Checker>() {
             @Override
             public boolean apply(Checker checker) {
-                return checker.getCircle().getSpeed().getLength()>1;
+                return checker.getDynamicBody().getSpeed().getLength()>1;
             }
         });
     }
@@ -183,7 +185,7 @@ public class Board implements IModel {
     public Set<Integer> remainingColors(){
         Set<Integer> set = Sets.newTreeSet();
         for(Checker checker:checkers){
-            if(!isOutside(checker)){
+            if(!isOutside(checker.getDisk())){
                 set.add(checker.getColor());
             }
         }
@@ -192,7 +194,7 @@ public class Board implements IModel {
 
 
 
-    private boolean isOutside(Checker checker){
+    private boolean isOutside(Disk checker){
         return (checker.getCenter().getX()+checker.getRadius()<borders.getMinX()) ||
                 (checker.getCenter().getX()-checker.getRadius()>borders.getMaxX()) ||
                 (checker.getCenter().getY()+checker.getRadius()<borders.getMinY()) ||
