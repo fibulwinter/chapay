@@ -36,6 +36,7 @@ public class VBoard implements IVisualizer{
         scaleModel.updateViewSize(canvas.getWidth(), canvas.getHeight());
         clearCanvas(canvas);
 //        drawBorder(canvas);
+        drawFrictions(canvas);
         drawObstacles(canvas);
         Paint paint = new Paint();
         for(Checker checker:board.getCheckers()){
@@ -71,6 +72,18 @@ public class VBoard implements IVisualizer{
                     canvas.drawLine(pf1.x,pf1.y,pf2.x,pf2.y,paint);
                 }
             }
+        }
+    }
+
+    private void drawFrictions(Canvas canvas) {
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);
+        for(FrictionModel.FrictionRegion region:board.getFrictionModel().getRegions()){
+            Disk disk = region.getShape();
+            PointF c = scaleModel.fromModel(disk.getCenter());
+            float r = scaleModel.fromModel(disk.getRadius());
+            paint.setColor(region.getColor());
+            canvas.drawOval(new RectF(c.x-r,c.y-r,c.x+r,c.y+r), paint);
         }
     }
 

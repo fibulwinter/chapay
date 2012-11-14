@@ -13,6 +13,7 @@ public class Checker {
         this.color = color;
         this.disk=new Disk(new V(x,y), radius);
         dynamicBody =new DynamicBody(disk, 1.0, new V(0,0));
+        dynamicBody.setMaxSpeed(radius*2);
     }
 
     public int getColor() {

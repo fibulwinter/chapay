@@ -9,10 +9,15 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class Continuum {
-    private static double TIME_QUANTUM=1;
+    private static double TIME_QUANTUM=0.5;
 
     private List<Body> bodies=newArrayList();
     private double time=0.0;
+    private FrictionModel frictionModel;
+
+    public Continuum(FrictionModel frictionModel) {
+        this.frictionModel = frictionModel;
+    }
 
     public List<Body> getBodies() {
         return bodies;
@@ -28,7 +33,7 @@ public class Continuum {
             double timeStep = Math.min(TIME_QUANTUM, targetTime - time);
             time+= timeStep;
             for(Body body:bodies){
-                body.move(timeStep);
+                body.move(timeStep, frictionModel.getFriction(body.getCenter()));
             }
             for (int i = 0, bodiesSize = bodies.size(); i < bodiesSize; i++) {
                 Body body1 = bodies.get(i);
@@ -99,14 +104,20 @@ public class Continuum {
                             if(staticBody.getShape() instanceof LineSegment){
                                 LineSegment lineSegment = (LineSegment) staticBody.getShape();
 
-                                double resultSpeedOut = -dynamicBody.getSpeed().dot(lineSegment.getNormal());
-                                dynamicBody.setSpeed(dynamicBody.getSpeed().add(lineSegment.getNormal().scale(resultSpeedOut*2)));
+                                double speedInsideLine = dynamicBody.getSpeed().dot(lineSegment.getNormal());
+                                if(speedInsideLine<0){
+                                    double resultSpeedOut = -speedInsideLine;
+                                    dynamicBody.setSpeed(dynamicBody.getSpeed().add(lineSegment.getNormal().scale(resultSpeedOut*2)));
+                                }
                             }else if(staticBody.getShape() instanceof Disk){
                                 Disk staticDisk = (Disk) staticBody.getShape();
 
                                 V normal = staticDisk.getCenter().subtract(dynamicBody.getCenter()).normal();
-                                double resultSpeedOut = -dynamicBody.getSpeed().dot(normal);
-                                dynamicBody.setSpeed(dynamicBody.getSpeed().add(normal.scale(resultSpeedOut * 2)));
+                                double speedInsideLine = dynamicBody.getSpeed().dot(normal);
+                                if(speedInsideLine>0){
+                                    double resultSpeedOut = -speedInsideLine;
+                                    dynamicBody.setSpeed(dynamicBody.getSpeed().add(normal.scale(resultSpeedOut * 2)));
+                                }
                             }
                             return Optional.absent();
                         }
@@ -122,14 +133,16 @@ public class Continuum {
         double speedB1 = bodyB.getSpeed().dot(normalAB);
         double speedA2 = speedA1-speedB1;
         double speedB2 = speedB1-speedB1;
-        double mass = bodyA.getMass() + bodyB.getMass();
-        double speedA3 = speedA2*(bodyA.getMass()-bodyB.getMass())/mass;
-        double speedB3 = 2*speedA2*bodyA.getMass()/mass;
-        double speedA4 = speedA3+speedB1;
-        double speedB4 = speedB3+speedB1;
-        V psA=bodyA.getSpeed().subtract(normalAB.scale(speedA1));
-        V psB=bodyB.getSpeed().subtract(normalAB.scale(speedB1));
-        bodyA.setSpeed(psA.addScaled(normalAB, speedA4));
-        bodyB.setSpeed(psB.addScaled(normalAB, speedB4));
+        if(speedA2>0){
+            double mass = bodyA.getMass() + bodyB.getMass();
+            double speedA3 = speedA2*(bodyA.getMass()-bodyB.getMass())/mass;
+            double speedB3 = 2*speedA2*bodyA.getMass()/mass;
+            double speedA4 = speedA3+speedB1;
+            double speedB4 = speedB3+speedB1;
+            V psA=bodyA.getSpeed().subtract(normalAB.scale(speedA1));
+            V psB=bodyB.getSpeed().subtract(normalAB.scale(speedB1));
+            bodyA.setSpeed(psA.addScaled(normalAB, speedA4));
+            bodyB.setSpeed(psB.addScaled(normalAB, speedB4));
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.fibulwinter.physic.Continuum;
 import net.fibulwinter.physic.Disk;
+import net.fibulwinter.physic.FrictionModel;
 import net.fibulwinter.physic.StaticBody;
 import net.fibulwinter.utils.RandUtils;
 import net.fibulwinter.utils.Rectangle;
@@ -19,7 +20,7 @@ import static net.fibulwinter.utils.RandUtils.mix;
 
 public class Board implements IModel {
 
-    private Continuum continuum = new Continuum();
+    private Continuum continuum;
 
     public enum BouncingMode{
         PASS(0),
@@ -35,11 +36,14 @@ public class Board implements IModel {
     }
     private Rectangle borders;
     private BouncingMode bouncingMode=BouncingMode.STOP;
+    private final FrictionModel frictionModel;
     private List<Checker> checkers = newArrayList();
 
-    public Board(Rectangle borders, BouncingMode bouncingMode) {
+    public Board(Rectangle borders, BouncingMode bouncingMode, FrictionModel frictionModel) {
         this.borders = borders;
         this.bouncingMode = bouncingMode;
+        this.frictionModel = frictionModel;
+        continuum = new Continuum(frictionModel);
         continuum.getBodies().addAll(StaticBody.asClosed(
                 new V(mix(borders.getMinX(), borders.getMaxX(), 0.33), borders.getMidY()),
                 new V(mix(borders.getMinX(), borders.getMaxX(), 0.66), borders.getMidY()),
@@ -64,6 +68,10 @@ public class Board implements IModel {
 
     public List<Checker> getCheckers() {
         return Collections.unmodifiableList(checkers);
+    }
+
+    public FrictionModel getFrictionModel() {
+        return frictionModel;
     }
 
     public void add(Checker checker){

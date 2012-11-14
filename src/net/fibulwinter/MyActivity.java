@@ -8,6 +8,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import com.google.common.collect.Iterables;
 import net.fibulwinter.model.Board;
+import net.fibulwinter.physic.Disk;
+import net.fibulwinter.physic.FrictionModel;
 import net.fibulwinter.utils.Rectangle;
 import net.fibulwinter.utils.V;
 import net.fibulwinter.view.ScaleModel;
@@ -62,8 +64,13 @@ public class MyActivity extends Activity {
 */
 //        Rectangle borders = new Rectangle(10, 10, 780, 1100);
         Rectangle borders = new Rectangle(10, 10, 310, 420);
-        Board board = new Board(borders, Board.BouncingMode.BOUNCE);
+        FrictionModel frictionModel = new FrictionModel();
+        Board board = new Board(borders, Board.BouncingMode.BOUNCE, frictionModel);
         board.generate(20, 10, players);
+        frictionModel.getRegions().add(new FrictionModel.FrictionRegion(
+                new Disk(new V(borders.getMidX(), borders.getMaxY()), borders.getWidth()/2), 3, Color.YELLOW));
+        frictionModel.getRegions().add(new FrictionModel.FrictionRegion(
+                new Disk(new V(borders.getMidX(), borders.getMinY()), borders.getWidth()/2), -1, Color.MAGENTA));
 /*
         Rectangle borders = new Rectangle(10, 10, 310, 420);
         Board board = new Board(borders);

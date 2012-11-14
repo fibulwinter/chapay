@@ -19,4 +19,7 @@ public class Disk extends Shape{
         setCenter(touchPoint.addScaled(getCenter().subtract(touchPoint).normal(), getRadius()));
     }
 
+    public boolean contains(V pos) {
+        return getCenter().inDistance(pos, getRadius());
+    }
 }

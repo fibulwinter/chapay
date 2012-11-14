@@ -32,7 +32,7 @@ public abstract class Body {
 
     public abstract boolean isFixed();
 
-    public abstract void move(double timeStep);
+    public abstract void move(double timeStep, double friction);
 
 
     public double getMass() {

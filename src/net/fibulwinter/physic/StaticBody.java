@@ -37,6 +37,6 @@ public class StaticBody extends Body{
     }
 
     @Override
-    public void move(double timeStep) {
+    public void move(double timeStep, double friction) {
     }
 }
