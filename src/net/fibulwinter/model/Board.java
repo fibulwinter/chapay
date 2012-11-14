@@ -38,11 +38,13 @@ public class Board implements IModel {
     private BouncingMode bouncingMode=BouncingMode.STOP;
     private final FrictionModel frictionModel;
     private List<Checker> checkers = newArrayList();
+    private Placer placer;
 
-    public Board(Rectangle borders, BouncingMode bouncingMode, FrictionModel frictionModel) {
+    public Board(Rectangle borders, BouncingMode bouncingMode, FrictionModel frictionModel, Placer placer) {
         this.borders = borders;
         this.bouncingMode = bouncingMode;
         this.frictionModel = frictionModel;
+        this.placer = placer;
         continuum = new Continuum(frictionModel);
         continuum.getBodies().addAll(StaticBody.asClosed(
                 new V(mix(borders.getMinX(), borders.getMaxX(), 0.33), borders.getMidY()),
@@ -63,7 +65,10 @@ public class Board implements IModel {
 //            continuum.getBodies().add(new StaticBody(new V(borders.getMinX(),borders.getMinY()),new V(0,1)));
 //            continuum.getBodies().add(new StaticBody(new V(borders.getMaxX(),borders.getMaxY()),new V(-1,0)));
 //            continuum.getBodies().add(new StaticBody(new V(borders.getMaxX(),borders.getMaxY()),new V(0,-1)));
+
         }
+        removeAllCheckers();
+        placer.setupCheckers(this);
     }
 
     public List<Checker> getCheckers() {
@@ -87,21 +92,9 @@ public class Board implements IModel {
         return borders;
     }
 
-    public void generate(double r, int count, Iterator<Integer> players){
-        checkers.clear();
-        for(int i=0;i<count;i++){
-            V pos=randomPos(this,r);
-            Checker checker = new Checker(pos.getX(), pos.getY(), r, players.next());
-            add(checker);
-        }
-    }
-
     public void regenerate(){
-        for(Checker checker: removeAllCheckers()){
-            Disk disk = checker.getDisk();
-            disk.setCenter(randomPos(this, disk.getRadius()));
-            add(checker);
-        }
+        removeAllCheckers();
+        placer.setupCheckers(this);
     }
 
     private ArrayList<Checker> removeAllCheckers() {
@@ -126,23 +119,6 @@ public class Board implements IModel {
             }
         }
         return closest;
-    }
-
-    private V randomPos(Board board, final double r) {
-        Rectangle borders = board.getBorders();
-        while (true){
-            final V pos= new V(RandUtils.rand(borders.getMinX() + r, borders.getMaxX() - r),
-                    RandUtils.rand(borders.getMinY() + r, borders.getMaxY() - r));
-            if(Iterables.all(board.getCheckers(), new Predicate<Checker>() {
-                @Override
-                public boolean apply(Checker checker) {
-                    Disk disk = checker.getDisk();
-                    return !pos.inDistance(disk.getCenter(), r + disk.getRadius());
-                }
-            })){
-                return pos;
-            }
-        }
     }
 
     public boolean isAnyMoving(){

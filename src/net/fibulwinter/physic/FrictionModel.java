@@ -7,6 +7,10 @@ import java.util.List;
 import static com.google.common.collect.Lists.newArrayList;
 
 public class FrictionModel {
+    public FrictionModel(double defaultFriction) {
+        this.defaultFriction = defaultFriction;
+    }
+
     public static class FrictionRegion{
         private Disk shape;
         private double friction;
@@ -33,7 +37,7 @@ public class FrictionModel {
 
     }
 
-    private double defaultFriction=0;
+    private double defaultFriction;
 
     private List<FrictionRegion> regions=newArrayList();
 
