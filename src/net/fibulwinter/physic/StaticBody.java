@@ -1,6 +1,9 @@
 package net.fibulwinter.physic;
 
-import net.fibulwinter.utils.V;
+import net.fibulwinter.geometry.Disk;
+import net.fibulwinter.geometry.LineSegment;
+import net.fibulwinter.geometry.Shape;
+import net.fibulwinter.geometry.V;
 
 import java.util.List;
 

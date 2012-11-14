@@ -2,10 +2,10 @@ package net.fibulwinter.model;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-import net.fibulwinter.physic.Disk;
+import net.fibulwinter.geometry.Disk;
 import net.fibulwinter.utils.RandUtils;
-import net.fibulwinter.utils.Rectangle;
-import net.fibulwinter.utils.V;
+import net.fibulwinter.geometry.Rectangle;
+import net.fibulwinter.geometry.V;
 
 import java.util.Iterator;
 

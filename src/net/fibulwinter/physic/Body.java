@@ -1,7 +1,7 @@
 package net.fibulwinter.physic;
 
-import com.google.common.base.Optional;
-import net.fibulwinter.utils.V;
+import net.fibulwinter.geometry.Shape;
+import net.fibulwinter.geometry.V;
 
 public abstract class Body {
     private Shape shape;

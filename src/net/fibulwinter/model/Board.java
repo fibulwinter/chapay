@@ -3,13 +3,13 @@ package net.fibulwinter.model;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.fibulwinter.geometry.GeometryStack;
 import net.fibulwinter.physic.Continuum;
-import net.fibulwinter.physic.Disk;
+import net.fibulwinter.geometry.Disk;
 import net.fibulwinter.physic.FrictionModel;
 import net.fibulwinter.physic.StaticBody;
-import net.fibulwinter.utils.RandUtils;
-import net.fibulwinter.utils.Rectangle;
-import net.fibulwinter.utils.V;
+import net.fibulwinter.geometry.Rectangle;
+import net.fibulwinter.geometry.V;
 import net.fibulwinter.view.IModel;
 
 import java.util.*;
@@ -36,20 +36,22 @@ public class Board implements IModel {
     }
     private Rectangle borders;
     private BouncingMode bouncingMode=BouncingMode.STOP;
+    private final GeometryStack geometryStack;
     private final FrictionModel frictionModel;
     private List<Checker> checkers = newArrayList();
     private Placer placer;
 
-    public Board(Rectangle borders, BouncingMode bouncingMode, FrictionModel frictionModel, Placer placer) {
+    public Board(Rectangle borders, BouncingMode bouncingMode, GeometryStack geometryStack, FrictionModel frictionModel, Placer placer) {
         this.borders = borders;
         this.bouncingMode = bouncingMode;
+        this.geometryStack = geometryStack;
         this.frictionModel = frictionModel;
         this.placer = placer;
         continuum = new Continuum(frictionModel);
         continuum.getBodies().addAll(StaticBody.asClosed(
-                new V(mix(borders.getMinX(), borders.getMaxX(), 0.33), borders.getMidY()),
-                new V(mix(borders.getMinX(), borders.getMaxX(), 0.66), borders.getMidY()),
-                new V(borders.getMidX(), mix(borders.getMinY(), borders.getMaxY(), 0.33))
+                borders.getRelative(0.33, 0.5),
+                borders.getRelative(0.66, 0.5),
+                borders.getRelative(0.5, 0.33)
         ));
         if(bouncingMode==BouncingMode.BOUNCE){
             continuum.getBodies().add(StaticBody.fromTo(
@@ -75,8 +77,8 @@ public class Board implements IModel {
         return Collections.unmodifiableList(checkers);
     }
 
-    public FrictionModel getFrictionModel() {
-        return frictionModel;
+    public GeometryStack getGeometryStack() {
+        return geometryStack;
     }
 
     public void add(Checker checker){

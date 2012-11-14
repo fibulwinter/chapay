@@ -1,8 +1,10 @@
 package net.fibulwinter.physic;
 
 import com.google.common.base.Optional;
+import net.fibulwinter.geometry.Disk;
+import net.fibulwinter.geometry.LineSegment;
 import net.fibulwinter.utils.PairOperation;
-import net.fibulwinter.utils.V;
+import net.fibulwinter.geometry.V;
 
 import java.util.List;
 

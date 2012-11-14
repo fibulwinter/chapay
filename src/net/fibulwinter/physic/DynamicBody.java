@@ -1,6 +1,7 @@
 package net.fibulwinter.physic;
 
-import net.fibulwinter.utils.V;
+import net.fibulwinter.geometry.Disk;
+import net.fibulwinter.geometry.V;
 
 public class DynamicBody extends Body{
     private double maxSpeed=Double.POSITIVE_INFINITY;

@@ -7,13 +7,15 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import com.google.common.collect.Iterables;
+import net.fibulwinter.geometry.Disk;
+import net.fibulwinter.geometry.GeometryStack;
+import net.fibulwinter.geometry.Region;
 import net.fibulwinter.model.Board;
 import net.fibulwinter.model.LinearPlacer;
 import net.fibulwinter.model.Placer;
-import net.fibulwinter.model.RandomPlacer;
 import net.fibulwinter.physic.FrictionModel;
-import net.fibulwinter.utils.Rectangle;
-import net.fibulwinter.utils.V;
+import net.fibulwinter.geometry.Rectangle;
+import net.fibulwinter.geometry.V;
 import net.fibulwinter.view.ScaleModel;
 import net.fibulwinter.view.SkyView;
 import net.fibulwinter.view.VBoard;
@@ -66,13 +68,15 @@ public class MyActivity extends Activity {
 */
 //        Rectangle borders = new Rectangle(10, 10, 780, 1100);
         Rectangle borders = new Rectangle(10, 10, 310, 420);
-        FrictionModel frictionModel = new FrictionModel(1);
+        GeometryStack geometryStack = new GeometryStack();
+        geometryStack.getRegions().add(new Region(new Disk(new V(borders.getMidX(),borders.getMidY()),100), -1, Color.MAGENTA));
+        FrictionModel frictionModel = new FrictionModel(1, geometryStack);
 //        Placer placer = new RandomPlacer(10, 20, players);
         Placer placer = new LinearPlacer(10, 20, players);
-        Board board = new Board(borders, Board.BouncingMode.PASS, frictionModel, placer);
-//        frictionModel.getRegions().add(new FrictionModel.FrictionRegion(
+        Board board = new Board(borders, Board.BouncingMode.PASS, geometryStack, frictionModel, placer);
+//        frictionModel.getRegions().add(new FrictionModel.Region(
 //                new Disk(new V(borders.getMidX(), borders.getMaxY()), borders.getWidth()/2), 3, Color.YELLOW));
-//        frictionModel.getRegions().add(new FrictionModel.FrictionRegion(
+//        frictionModel.getRegions().add(new FrictionModel.Region(
 //                new Disk(new V(borders.getMidX(), borders.getMinY()), borders.getWidth()/2), -1, Color.MAGENTA));
 /*
         Rectangle borders = new Rectangle(10, 10, 310, 420);

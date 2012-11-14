@@ -1,4 +1,4 @@
-package net.fibulwinter.utils;
+package net.fibulwinter.geometry;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static net.fibulwinter.utils.RandUtils.mix;
@@ -48,5 +48,9 @@ public class Rectangle {
 
     public double getMidX() {
         return mix(minX, maxX, 0.5);
+    }
+
+    public V getRelative(double rx, double ry){
+        return new V(mix(minX,maxX,rx),mix(minY,maxY,ry));
     }
 }

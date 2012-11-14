@@ -1,11 +1,7 @@
 package net.fibulwinter.model;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import net.fibulwinter.physic.Disk;
-import net.fibulwinter.utils.RandUtils;
-import net.fibulwinter.utils.Rectangle;
-import net.fibulwinter.utils.V;
+import net.fibulwinter.geometry.Rectangle;
+import net.fibulwinter.geometry.V;
 
 import java.util.Iterator;
 
@@ -27,8 +23,7 @@ public class LinearPlacer implements Placer {
         for(int i=0;i<count;i++){
             double x = 1.0/(count/2+1)*(i/2+1);
             double y = i%2==0? 0.1 : 0.9;
-            Rectangle borders = board.getBorders();
-            V pos=new V(mix(borders.getMinX(), borders.getMaxX(), x),mix(borders.getMinY(), borders.getMaxY(), y));
+            V pos= board.getBorders().getRelative(x, y);
             Checker checker = new Checker(pos.getX(), pos.getY(), radius, players.next());
             board.add(checker);
         }

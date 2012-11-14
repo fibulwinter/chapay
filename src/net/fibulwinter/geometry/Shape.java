@@ -1,6 +1,4 @@
-package net.fibulwinter.physic;
-
-import net.fibulwinter.utils.V;
+package net.fibulwinter.geometry;
 
 public abstract class Shape {
     private V center;

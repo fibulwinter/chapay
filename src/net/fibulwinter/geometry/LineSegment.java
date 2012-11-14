@@ -1,6 +1,4 @@
-package net.fibulwinter.physic;
-
-import net.fibulwinter.utils.V;
+package net.fibulwinter.geometry;
 
 public class LineSegment extends Shape{
     private final V normal;

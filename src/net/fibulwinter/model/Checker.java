@@ -1,8 +1,8 @@
 package net.fibulwinter.model;
 
 import net.fibulwinter.physic.DynamicBody;
-import net.fibulwinter.physic.Disk;
-import net.fibulwinter.utils.V;
+import net.fibulwinter.geometry.Disk;
+import net.fibulwinter.geometry.V;
 
 public class Checker {
     private int color;

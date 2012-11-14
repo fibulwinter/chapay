@@ -1,4 +1,4 @@
-package net.fibulwinter.utils;
+package net.fibulwinter.geometry;
 
 public class V {
     private final double x;

@@ -3,11 +3,15 @@ package net.fibulwinter.view;
 import android.graphics.*;
 import android.view.MotionEvent;
 import com.google.common.collect.Iterables;
+import net.fibulwinter.geometry.Disk;
+import net.fibulwinter.geometry.LineSegment;
+import net.fibulwinter.geometry.Shape;
 import net.fibulwinter.model.Board;
 import net.fibulwinter.model.Checker;
 import net.fibulwinter.physic.*;
-import net.fibulwinter.utils.Rectangle;
-import net.fibulwinter.utils.V;
+import net.fibulwinter.geometry.Region;
+import net.fibulwinter.geometry.Rectangle;
+import net.fibulwinter.geometry.V;
 import net.fibulwinter.utils.ColorUtils;
 import net.fibulwinter.utils.RandUtils;
 
@@ -78,7 +82,7 @@ public class VBoard implements IVisualizer{
     private void drawFrictions(Canvas canvas) {
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
-        for(FrictionModel.FrictionRegion region:board.getFrictionModel().getRegions()){
+        for(Region region:board.getGeometryStack().getRegions()){
             Disk disk = region.getShape();
             PointF c = scaleModel.fromModel(disk.getCenter());
             float r = scaleModel.fromModel(disk.getRadius());

@@ -1,57 +1,30 @@
 package net.fibulwinter.physic;
 
-import net.fibulwinter.utils.V;
-
-import java.util.List;
+import com.google.common.base.Optional;
+import net.fibulwinter.geometry.GeometryStack;
+import net.fibulwinter.geometry.Region;
+import net.fibulwinter.geometry.V;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 public class FrictionModel {
-    public FrictionModel(double defaultFriction) {
-        this.defaultFriction = defaultFriction;
-    }
-
-    public static class FrictionRegion{
-        private Disk shape;
-        private double friction;
-        private int color;
-
-        public FrictionRegion(Disk shape, double friction, int color) {
-            this.shape = shape;
-            this.friction = friction;
-            this.color = color;
-        }
-
-        public Disk getShape() {
-            return shape;
-        }
-
-        public double getFriction() {
-            return friction;
-        }
-
-        public int getColor() {
-            return color;
-        }
-
-
-    }
-
     private double defaultFriction;
 
-    private List<FrictionRegion> regions=newArrayList();
+    private static final GeometryStack.DataExtractor<Double> FRICTION_EXTRACTOR = new GeometryStack.DataExtractor<Double>() {
+        @Override
+        public Optional<Double> getData(Region region) {
+            return region.getFriction();
+        }
+    };
 
-    public List<FrictionRegion> getRegions() {
-        return regions;
+    private GeometryStack geometryStack;
+
+    public FrictionModel(double defaultFriction, GeometryStack geometryStack) {
+        this.defaultFriction = defaultFriction;
+        this.geometryStack = geometryStack;
     }
 
     public double getFriction(V pos){
-        double friction=defaultFriction;
-        for(FrictionRegion frictionRegion:regions){
-            if(frictionRegion.getShape().contains(pos)){
-                friction=frictionRegion.getFriction();
-            }
-        }
-        return friction;
+        return geometryStack.getTopValue(pos, FRICTION_EXTRACTOR).or(defaultFriction);
     }
 }
