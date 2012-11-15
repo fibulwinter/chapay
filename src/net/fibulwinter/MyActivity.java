@@ -67,9 +67,9 @@ public class MyActivity extends Activity {
         }
 */
 //        Rectangle borders = new Rectangle(10, 10, 780, 1100);
-        Rectangle borders = new Rectangle(10, 10, 310, 420);
+        Rectangle borders = new Rectangle(new V(160,205), 300, 410);
         GeometryStack geometryStack = new GeometryStack();
-        geometryStack.getRegions().add(new Region(new Disk(new V(borders.getMidX(),borders.getMidY()),100), -1, Color.MAGENTA));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5,0.5),100), -1, Color.MAGENTA));
         FrictionModel frictionModel = new FrictionModel(1, geometryStack);
 //        Placer placer = new RandomPlacer(10, 20, players);
         Placer placer = new LinearPlacer(10, 20, players);

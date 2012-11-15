@@ -57,8 +57,8 @@ public class VBoard implements IVisualizer{
         paint.setColor(Color.WHITE);
         paint.setStyle(Paint.Style.STROKE);
         Rectangle borders = board.getBorders();
-        PointF minPoint = scaleModel.fromModel(new V(borders.getMinX(), borders.getMinY()));
-        PointF maxPoint = scaleModel.fromModel(new V(borders.getMaxX(), borders.getMaxY()));
+        PointF minPoint = scaleModel.fromModel(borders.getRelative(0,0));
+        PointF maxPoint = scaleModel.fromModel(borders.getRelative(1,1));
         canvas.drawRect(minPoint.x,minPoint.y,maxPoint.x-1,maxPoint.y-1,paint);
     }
 

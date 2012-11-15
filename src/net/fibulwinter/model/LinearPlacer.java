@@ -22,7 +22,7 @@ public class LinearPlacer implements Placer {
     public void setupCheckers(Board board) {
         for(int i=0;i<count;i++){
             double x = 1.0/(count/2+1)*(i/2+1);
-            double y = i%2==0? 0.1 : 0.9;
+            double y = i%2==0? 0.15 : 0.85;
             V pos= board.getBorders().getRelative(x, y);
             Checker checker = new Checker(pos.getX(), pos.getY(), radius, players.next());
             board.add(checker);

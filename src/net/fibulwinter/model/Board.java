@@ -49,19 +49,20 @@ public class Board implements IModel {
         this.placer = placer;
         continuum = new Continuum(frictionModel);
         continuum.getBodies().addAll(StaticBody.asClosed(
-                borders.getRelative(0.33, 0.5),
-                borders.getRelative(0.66, 0.5),
-                borders.getRelative(0.5, 0.33)
+                borders.getRelative(0.4, 0.5),
+                borders.getRelative(0.5, 0.6),
+                borders.getRelative(0.6, 0.5),
+                borders.getRelative(0.5, 0.4)
         ));
         if(bouncingMode==BouncingMode.BOUNCE){
             continuum.getBodies().add(StaticBody.fromTo(
-                    new V(borders.getMinX(), borders.getMinY()), new V(borders.getMaxX(), borders.getMinY())));
+                    borders.getRelative(0,0), borders.getRelative(1,0)));
             continuum.getBodies().add(StaticBody.fromTo(
-                    new V(borders.getMaxX(), borders.getMinY()), new V(borders.getMaxX(), borders.getMaxY())));
+                    borders.getRelative(1,0), borders.getRelative(1,1)));
             continuum.getBodies().add(StaticBody.fromTo(
-                    new V(borders.getMaxX(), borders.getMaxY()), new V(borders.getMinX(), borders.getMaxY())));
+                    borders.getRelative(1,1), borders.getRelative(0,1)));
             continuum.getBodies().add(StaticBody.fromTo(
-                    new V(borders.getMinX(), borders.getMaxY()), new V(borders.getMinX(), borders.getMinY())));
+                    borders.getRelative(0,1), borders.getRelative(0,0)));
 
 //            continuum.getBodies().add(new StaticBody(new V(borders.getMinX(),borders.getMinY()),new V(1,0)));
 //            continuum.getBodies().add(new StaticBody(new V(borders.getMinX(),borders.getMinY()),new V(0,1)));

@@ -3,54 +3,45 @@ package net.fibulwinter.geometry;
 import static com.google.common.base.Preconditions.checkArgument;
 import static net.fibulwinter.utils.RandUtils.mix;
 
-public class Rectangle {
-    private final double minX;
-    private final double minY;
-    private final double maxX;
-    private final double maxY;
+public class Rectangle extends Shape{
+    private double halfWidth;
+    private double halfHeigth;
 
-    public Rectangle(double minX, double minY, double maxX, double maxY) {
-        checkArgument(minX<=maxX);
-        checkArgument(minY<=maxY);
-        this.minX = minX;
-        this.minY = minY;
-        this.maxX = maxX;
-        this.maxY = maxY;
+    public Rectangle(V center, double width, double height) {
+        super(center);
+        this.halfWidth=width/2;
+        this.halfHeigth=height/2;
     }
 
     public double getMinX() {
-        return minX;
+        return getCenter().getX()-halfWidth;
     }
 
     public double getMinY() {
-        return minY;
+        return getCenter().getY()-halfHeigth;
     }
 
     public double getMaxX() {
-        return maxX;
+        return getCenter().getX()+halfWidth;
     }
 
     public double getMaxY() {
-        return maxY;
+        return getCenter().getY()+halfHeigth;
     }
 
     public double getWidth() {
-        return maxX-minX;
+        return halfWidth*2;
     }
 
     public double getHeight() {
-        return maxY-minY;
-    }
-
-    public double getMidY() {
-        return mix(minY, maxY, 0.5);
-    }
-
-    public double getMidX() {
-        return mix(minX, maxX, 0.5);
+        return halfHeigth*2;
     }
 
     public V getRelative(double rx, double ry){
-        return new V(mix(minX,maxX,rx),mix(minY,maxY,ry));
+        return new V(mix(getMinX(),getMaxX(),rx),mix(getMinY(),getMaxY(),ry));
+    }
+
+    @Override
+    public void avoid(V touchPoint) {
     }
 }
