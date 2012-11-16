@@ -30,7 +30,7 @@ public class Checker {
     }
 
     public boolean isMoving(){
-        return getDynamicBody().getSpeed().getLength()>1;
+        return getDynamicBody().getVelocity().getLength()>1;
     }
 
     public void die(){

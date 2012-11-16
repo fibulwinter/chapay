@@ -150,19 +150,19 @@ public class Board implements IModel {
             for(Checker checker:checkers){
                 if(checker.getPos().getX()-checker.getRadius()<borders.getMinX()){
                     checker.setPosX(borders.getMinX() + checker.getRadius());
-                    checker.setSpeed(checker.getSpeed().scale(bouncingMode.bounceFactor,1));
+                    checker.setVelocity(checker.getVelocity().scale(bouncingMode.bounceFactor,1));
                 }
                 if(checker.getPos().getX()+checker.getRadius()>borders.getMaxX()){
                     checker.setPosX(borders.getMaxX()-checker.getRadius());
-                    checker.setSpeed(checker.getSpeed().scale(bouncingMode.bounceFactor,1));
+                    checker.setVelocity(checker.getVelocity().scale(bouncingMode.bounceFactor,1));
                 }
                 if(checker.getPos().getY()-checker.getRadius()<borders.getMinY()){
                     checker.setPosY(borders.getMinY() + checker.getRadius());
-                    checker.setSpeed(checker.getSpeed().scale(1,bouncingMode.bounceFactor));
+                    checker.setVelocity(checker.getVelocity().scale(1,bouncingMode.bounceFactor));
                 }
                 if(checker.getPos().getY()+checker.getRadius()>borders.getMaxY()){
                     checker.setPosY(borders.getMaxY() - checker.getRadius());
-                    checker.setSpeed(checker.getSpeed().scale(1,bouncingMode.bounceFactor));
+                    checker.setVelocity(checker.getVelocity().scale(1,bouncingMode.bounceFactor));
                 }
             }
         }

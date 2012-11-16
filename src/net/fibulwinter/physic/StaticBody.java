@@ -36,7 +36,7 @@ public class StaticBody extends Body{
     }
 
     @Override
-    public void setSpeed(V speed) {
+    public void setVelocity(V velocity) {
     }
 
     @Override

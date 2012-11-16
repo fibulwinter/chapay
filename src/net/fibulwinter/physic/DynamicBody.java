@@ -21,7 +21,7 @@ public class DynamicBody extends Body{
 
     @Override
     public void move(double timeStep, double friction) {
-        getShape().setCenter(getCenter().addScaled(getSpeed(), timeStep));
-        setSpeed(getSpeed().addLength(-friction * timeStep).limitLength(maxSpeed));
+        getShape().setCenter(getCenter().addScaled(getVelocity(), timeStep));
+        setVelocity(getVelocity().addLength(-friction * timeStep).limitLength(maxSpeed));
     }
 }

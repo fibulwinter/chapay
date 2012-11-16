@@ -5,13 +5,13 @@ import net.fibulwinter.geometry.V;
 
 public abstract class Body {
     private Shape shape;
-    private V speed;
+    private V velocity;
     private double mass;
 
-    public Body(Shape shape, double mass, V speed) {
+    public Body(Shape shape, double mass, V velocity) {
         this.shape = shape;
         this.mass = mass;
-        this.speed = speed;
+        this.velocity = velocity;
     }
 
     public Shape getShape() {
@@ -22,12 +22,12 @@ public abstract class Body {
         return shape.getCenter();
     }
 
-    public V getSpeed() {
-        return speed;
+    public V getVelocity() {
+        return velocity;
     }
 
-    public void setSpeed(V speed) {
-        this.speed = speed;
+    public void setVelocity(V velocity) {
+        this.velocity = velocity;
     }
 
     public abstract boolean isFixed();

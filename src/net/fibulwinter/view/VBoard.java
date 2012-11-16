@@ -1,6 +1,7 @@
 package net.fibulwinter.view;
 
 import android.graphics.*;
+import android.util.Log;
 import android.view.MotionEvent;
 import com.google.common.collect.Iterables;
 import net.fibulwinter.geometry.Disk;
@@ -24,6 +25,7 @@ public class VBoard implements IVisualizer{
     private ScaleModel scaleModel;
     private final Iterator<Integer> players;
     private int actingColor;
+    private long pressedTime;
 
     public VBoard(Board board, ScaleModel scaleModel, Iterator<Integer> players) {
         this.board = board;
@@ -120,13 +122,19 @@ public class VBoard implements IVisualizer{
         }
         if (action == MotionEvent.ACTION_DOWN) {
             startPos=pos;
+            pressedTime = System.currentTimeMillis();
         }else if (action == MotionEvent.ACTION_UP && startPos!=null) {
             V subtract = pos.subtract(startPos);
+            double timeSec = (System.currentTimeMillis() - pressedTime+1)/1000.0;
             Checker closest=board.getClosest(actingColor, startPos, 100);
             if(closest!=null){
                 if(subtract.getLength()>20){
-                    closest.getDynamicBody().setSpeed(subtract.scale(0.1).limitLength(30));
-                    actingColor=players.next();
+                    double speed=subtract.getLength()/timeSec*0.03;
+                    if(speed>5){
+                        Log.e("Chapay","speed="+speed);
+                        closest.getDynamicBody().setVelocity(subtract.normal().scale(speed).limitLength(40));
+                        actingColor=players.next();
+                    }
                 }
             }
             startPos=null;

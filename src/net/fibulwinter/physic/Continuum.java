@@ -106,19 +106,19 @@ public class Continuum {
                             if(staticBody.getShape() instanceof LineSegment){
                                 LineSegment lineSegment = (LineSegment) staticBody.getShape();
 
-                                double speedInsideLine = dynamicBody.getSpeed().dot(lineSegment.getNormal());
+                                double speedInsideLine = dynamicBody.getVelocity().dot(lineSegment.getNormal());
                                 if(speedInsideLine<0){
                                     double resultSpeedOut = -speedInsideLine;
-                                    dynamicBody.setSpeed(dynamicBody.getSpeed().add(lineSegment.getNormal().scale(resultSpeedOut*2)));
+                                    dynamicBody.setVelocity(dynamicBody.getVelocity().add(lineSegment.getNormal().scale(resultSpeedOut * 2)));
                                 }
                             }else if(staticBody.getShape() instanceof Disk){
                                 Disk staticDisk = (Disk) staticBody.getShape();
 
                                 V normal = staticDisk.getCenter().subtract(dynamicBody.getCenter()).normal();
-                                double speedInsideLine = dynamicBody.getSpeed().dot(normal);
+                                double speedInsideLine = dynamicBody.getVelocity().dot(normal);
                                 if(speedInsideLine>0){
                                     double resultSpeedOut = -speedInsideLine;
-                                    dynamicBody.setSpeed(dynamicBody.getSpeed().add(normal.scale(resultSpeedOut * 2)));
+                                    dynamicBody.setVelocity(dynamicBody.getVelocity().add(normal.scale(resultSpeedOut * 2)));
                                 }
                             }
                             return Optional.absent();
@@ -128,11 +128,46 @@ public class Continuum {
         }
     }
 
+    private void interactCircles2(DynamicBody bodyA, DynamicBody bodyB) {
+        //this - bodyB, ball - bodyA
+        // get the mtd
+    V delta = (bodyB.getCenter().subtract(bodyA.getCenter()));
+    double d = delta.getLength();
+    // minimum translation distance to push balls apart after intersecting
+    V mtd = delta.scale(((20+20)-d)/d);
+
+
+    // resolve intersection --
+    // inverse mass quantities
+    double im1 = 1 / bodyB.getMass();
+    double im2 = 1 / bodyA.getMass();
+
+    // push-pull them apart based off their mass
+//    position = position.add(mtd.multiply(im1 / (im1 + im2)));
+//    ball.position = ball.position.subtract(mtd.multiply(im2 / (im1 + im2)));
+
+    // impact speed
+    V v = (bodyB.getVelocity().subtract(bodyA.getVelocity()));
+    double vn = v.dot(delta.normal());
+
+    // sphere intersecting but moving away from each other already
+    if (vn > 0.0f) return;
+
+    double restitution=1;
+    // collision impulse
+    double i = (-(1.0f + restitution) * vn) / (im1 + im2);
+    V impulse = mtd.scale(i);
+
+    // change in momentum
+    bodyB.setVelocity(bodyB.getVelocity().addScaled(impulse,im1));
+    bodyA.setVelocity(bodyA.getVelocity().addScaled(impulse,-im2));
+    }
+
     private void interactCircles(DynamicBody bodyA, DynamicBody bodyB) {
         V vAB = bodyB.getCenter().subtract(bodyA.getCenter());
         V normalAB = vAB.normal();
-        double speedA1 = bodyA.getSpeed().dot(normalAB);
-        double speedB1 = bodyB.getSpeed().dot(normalAB);
+        double speedA1 = bodyA.getVelocity().dot(normalAB);
+        double speedB1 = bodyB.getVelocity().dot(normalAB);
         double speedA2 = speedA1-speedB1;
         double speedB2 = speedB1-speedB1;
         if(speedA2>0){
@@ -141,10 +176,10 @@ public class Continuum {
             double speedB3 = 2*speedA2*bodyA.getMass()/mass;
             double speedA4 = speedA3+speedB1;
             double speedB4 = speedB3+speedB1;
-            V psA=bodyA.getSpeed().subtract(normalAB.scale(speedA1));
-            V psB=bodyB.getSpeed().subtract(normalAB.scale(speedB1));
-            bodyA.setSpeed(psA.addScaled(normalAB, speedA4));
-            bodyB.setSpeed(psB.addScaled(normalAB, speedB4));
+            V psA=bodyA.getVelocity().subtract(normalAB.scale(speedA1));
+            V psB=bodyB.getVelocity().subtract(normalAB.scale(speedB1));
+            bodyA.setVelocity(psA.addScaled(normalAB, speedA4));
+            bodyB.setVelocity(psB.addScaled(normalAB, speedB4));
         }
     }
 }
