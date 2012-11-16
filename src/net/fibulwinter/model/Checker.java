@@ -8,6 +8,7 @@ public class Checker {
     private int color;
     private DynamicBody dynamicBody;
     private Disk disk;
+    private boolean dead=false;
 
     public Checker(double x, double y, double radius, int color) {
         this.color = color;
@@ -26,5 +27,17 @@ public class Checker {
 
     public Disk getDisk() {
         return disk;
+    }
+
+    public boolean isMoving(){
+        return getDynamicBody().getSpeed().getLength()>1;
+    }
+
+    public void die(){
+        this.dead=true;
+    }
+
+    public boolean isDead() {
+        return dead;
     }
 }

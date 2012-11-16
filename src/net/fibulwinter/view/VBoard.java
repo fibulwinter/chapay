@@ -81,7 +81,7 @@ public class VBoard implements IVisualizer{
 
     private void drawFrictions(Canvas canvas) {
         Paint paint = new Paint();
-        paint.setStyle(Paint.Style.STROKE);
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
         for(Region region:board.getGeometryStack().getRegions()){
             Disk disk = region.getShape();
             PointF c = scaleModel.fromModel(disk.getCenter());

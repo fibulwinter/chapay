@@ -11,6 +11,7 @@ import net.fibulwinter.geometry.Disk;
 import net.fibulwinter.geometry.GeometryStack;
 import net.fibulwinter.geometry.Region;
 import net.fibulwinter.model.Board;
+import net.fibulwinter.model.FlyType;
 import net.fibulwinter.model.LinearPlacer;
 import net.fibulwinter.model.Placer;
 import net.fibulwinter.physic.FrictionModel;
@@ -51,7 +52,7 @@ public class MyActivity extends Activity {
 
         mLunarThread.setPause(false);
 
-        Iterator<Integer> players= Iterables.cycle(newArrayList(Color.GREEN, Color.RED)).iterator();
+        Iterator<Integer> players= Iterables.cycle(newArrayList(Color.YELLOW, Color.MAGENTA)).iterator();
 /*
         Rectangle borders = new Rectangle(-1e10, -1e10, 1e10, 1e10);
         Board board = new Board(borders);
@@ -69,11 +70,17 @@ public class MyActivity extends Activity {
 //        Rectangle borders = new Rectangle(10, 10, 780, 1100);
         Rectangle borders = new Rectangle(new V(160,205), 300, 410);
         GeometryStack geometryStack = new GeometryStack();
-        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5,0.5),100), -1, Color.MAGENTA));
-        FrictionModel frictionModel = new FrictionModel(1, geometryStack);
+//        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5, 0.5), 100), Color.MAGENTA).friction(-1));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5, 0.5), 300), Color.GREEN).flyType(FlyType.GRASS));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5, 0.5), 30), Color.RED).flyType(FlyType.PIT));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.25, 0.70), 50), Color.BLUE).flyType(FlyType.WATER));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.75, 0.70), 50), Color.BLUE).flyType(FlyType.WATER));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.25, 0.3), 50), Color.BLUE).flyType(FlyType.WATER));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.75, 0.3), 50), Color.BLUE).flyType(FlyType.WATER));
+        FrictionModel frictionModel = new FrictionModel(0.5, geometryStack);
 //        Placer placer = new RandomPlacer(10, 20, players);
         Placer placer = new LinearPlacer(10, 20, players);
-        Board board = new Board(borders, Board.BouncingMode.PASS, geometryStack, frictionModel, placer);
+        Board board = new Board(borders, Board.BouncingMode.BOUNCE, geometryStack, frictionModel, placer);
 //        frictionModel.getRegions().add(new FrictionModel.Region(
 //                new Disk(new V(borders.getMidX(), borders.getMaxY()), borders.getWidth()/2), 3, Color.YELLOW));
 //        frictionModel.getRegions().add(new FrictionModel.Region(

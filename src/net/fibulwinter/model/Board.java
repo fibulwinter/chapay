@@ -21,19 +21,8 @@ import static net.fibulwinter.utils.RandUtils.mix;
 public class Board implements IModel {
 
     private Continuum continuum;
+    private final FlyTypeModel flyTypeModel;
 
-    public enum BouncingMode{
-        PASS(0),
-        STOP(0),
-        BOUNCE(-1);
-
-        private double bounceFactor;
-
-        private BouncingMode(double bounceFactor) {
-            this.bounceFactor = bounceFactor;
-        }
-
-    }
     private Rectangle borders;
     private BouncingMode bouncingMode=BouncingMode.STOP;
     private final GeometryStack geometryStack;
@@ -47,13 +36,14 @@ public class Board implements IModel {
         this.geometryStack = geometryStack;
         this.frictionModel = frictionModel;
         this.placer = placer;
+        flyTypeModel = new FlyTypeModel(geometryStack);
         continuum = new Continuum(frictionModel);
-        continuum.getBodies().addAll(StaticBody.asClosed(
-                borders.getRelative(0.4, 0.5),
-                borders.getRelative(0.5, 0.6),
-                borders.getRelative(0.6, 0.5),
-                borders.getRelative(0.5, 0.4)
-        ));
+//        continuum.getBodies().addAll(StaticBody.asClosed(
+//                borders.getRelative(0.4, 0.5),
+//                borders.getRelative(0.5, 0.6),
+//                borders.getRelative(0.6, 0.5),
+//                borders.getRelative(0.5, 0.4)
+//        ));
         if(bouncingMode==BouncingMode.BOUNCE){
             continuum.getBodies().add(StaticBody.fromTo(
                     borders.getRelative(0,0), borders.getRelative(1,0)));
@@ -128,7 +118,7 @@ public class Board implements IModel {
         return Iterables.any(getCheckers(), new Predicate<Checker>() {
             @Override
             public boolean apply(Checker checker) {
-                return checker.getDynamicBody().getSpeed().getLength()>1;
+                return checker.isMoving();
             }
         });
     }
@@ -136,6 +126,25 @@ public class Board implements IModel {
     @Override
     public void simulate() {
         continuum.simulate(1.0);
+        for (Iterator<Checker> iterator = checkers.iterator(); iterator.hasNext(); ) {
+            Checker checker = iterator.next();
+            boolean kill=false;
+            switch (flyTypeModel.getFlyType(checker.getDisk().getCenter())) {
+                case PIT:
+                    kill=true;
+                    break;
+                case WATER:
+                    kill=!checker.isMoving();
+                    break;
+                case GRASS:
+                    break;
+            }
+            if(kill){
+                checker.die();
+                continuum.getBodies().remove(checker.getDynamicBody());
+                iterator.remove();
+            }
+        }
 /*
         if(bouncingMode!=BouncingMode.PASS){
             for(Checker checker:checkers){
@@ -187,4 +196,18 @@ public class Board implements IModel {
                 (checker.getCenter().getY()+checker.getRadius()<borders.getMinY()) ||
                 (checker.getCenter().getY()-checker.getRadius()>borders.getMaxY());
     }
+
+    public enum BouncingMode{
+        PASS(0),
+        STOP(0),
+        BOUNCE(-1);
+
+        private double bounceFactor;
+
+        private BouncingMode(double bounceFactor) {
+            this.bounceFactor = bounceFactor;
+        }
+
+    }
+
 }
