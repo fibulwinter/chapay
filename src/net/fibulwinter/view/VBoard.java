@@ -4,6 +4,7 @@ import android.graphics.*;
 import android.util.Log;
 import android.view.MotionEvent;
 import com.google.common.collect.Iterables;
+import net.fibulwinter.R;
 import net.fibulwinter.geometry.Disk;
 import net.fibulwinter.geometry.LineSegment;
 import net.fibulwinter.geometry.Shape;
@@ -44,13 +45,19 @@ public class VBoard implements IVisualizer{
 //        drawBorder(canvas);
         drawFrictions(canvas);
         drawObstacles(canvas);
-        Paint paint = new Paint();
         for(Checker checker:board.getCheckers()){
-            paint.setColor(getColor(checker));
+            int imageResource = checker.getColor() == Color.BLACK ? R.drawable.black : R.drawable.white;
+            //            paint.setColor(getColor(checker));
+
             Disk disk = checker.getDisk();
             PointF centerPoint = scaleModel.fromModel(disk.getCenter());
             float r = scaleModel.fromModel(disk.getRadius());
-            canvas.drawOval(new RectF(centerPoint.x-r,centerPoint.y-r,centerPoint.x+r,centerPoint.y+r), paint);
+//            canvas.drawOval(new RectF(centerPoint.x-r,centerPoint.y-r,centerPoint.x+r,centerPoint.y+r), paint);
+            if(actingColor==checker.getColor() && !board.isAnyMoving()){
+                float k = 1.4f;
+                canvas.drawBitmap(ImageCache.get().get(R.drawable.sel, (int) scaleModel.fromModel(checker.getDisk().getRadius() * 2*k)), centerPoint.x - r* k, centerPoint.y - r* k, null);
+            }
+            canvas.drawBitmap(ImageCache.get().get(imageResource, (int) scaleModel.fromModel(checker.getDisk().getRadius() * 2)), centerPoint.x - r, centerPoint.y - r, null);
         }
     }
 
@@ -105,6 +112,8 @@ public class VBoard implements IVisualizer{
         Paint paint = new Paint();
         paint.setColor(Color.BLACK);
         canvas.drawRect(0,0,canvas.getWidth(),canvas.getHeight(), paint);
+        Bitmap bitmap = ImageCache.get().get(R.drawable.level, canvas.getWidth(), canvas.getHeight());
+        canvas.drawBitmap(bitmap,0,0,null);
     }
 
     private V startPos=null;

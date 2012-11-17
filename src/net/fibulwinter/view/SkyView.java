@@ -45,7 +45,7 @@ public class SkyView extends SurfaceView implements SurfaceHolder.Callback {
                             if (!mPaused && model != null) {
                                 model.simulate();
                             }
-                            if (visualizer != null) {
+                            if (visualizer != null && c!=null) {
                                 visualizer.doDraw(c);
                             }
                         }

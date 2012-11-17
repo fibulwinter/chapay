@@ -17,6 +17,7 @@ import net.fibulwinter.model.Placer;
 import net.fibulwinter.physic.FrictionModel;
 import net.fibulwinter.geometry.Rectangle;
 import net.fibulwinter.geometry.V;
+import net.fibulwinter.view.ImageCache;
 import net.fibulwinter.view.ScaleModel;
 import net.fibulwinter.view.SkyView;
 import net.fibulwinter.view.VBoard;
@@ -52,7 +53,7 @@ public class MyActivity extends Activity {
 
         mLunarThread.setPause(false);
 
-        Iterator<Integer> players= Iterables.cycle(newArrayList(Color.YELLOW, Color.MAGENTA)).iterator();
+        Iterator<Integer> players= Iterables.cycle(newArrayList(Color.WHITE, Color.BLACK)).iterator();
 /*
         Rectangle borders = new Rectangle(-1e10, -1e10, 1e10, 1e10);
         Board board = new Board(borders);
@@ -71,17 +72,15 @@ public class MyActivity extends Activity {
         Rectangle borders = new Rectangle(new V(160,205), 300, 410);
         GeometryStack geometryStack = new GeometryStack();
 //        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5, 0.5), 100), Color.MAGENTA).friction(-1));
-        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5, 0.5), 300), Color.GREEN).flyType(FlyType.GRASS));
-/*
-        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5, 0.5), 30), Color.RED).flyType(FlyType.PIT));
-        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.25, 0.70), 50), Color.BLUE).flyType(FlyType.WATER));
-        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.75, 0.70), 50), Color.BLUE).flyType(FlyType.WATER));
-        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.25, 0.3), 50), Color.BLUE).flyType(FlyType.WATER));
-        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.75, 0.3), 50), Color.BLUE).flyType(FlyType.WATER));
-*/
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5, 0.5), 300), Color.parseColor("#7CFC00")).flyType(FlyType.GRASS));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5, 0.5), 30), Color.parseColor("#8B4513")).flyType(FlyType.PIT));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.25, 0.70), 50), Color.parseColor("#20B2AA")).flyType(FlyType.WATER));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.75, 0.70), 50), Color.parseColor("#20B2AA")).flyType(FlyType.WATER));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.25, 0.3), 50), Color.parseColor("#20B2AA")).flyType(FlyType.WATER));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.75, 0.3), 50), Color.parseColor("#20B2AA")).flyType(FlyType.WATER));
         FrictionModel frictionModel = new FrictionModel(0.5, geometryStack);
 //        Placer placer = new RandomPlacer(10, 20, players);
-        Placer placer = new LinearPlacer(2, 20, players);
+        Placer placer = new LinearPlacer(10, 15, players);
         Board board = new Board(borders, Board.BouncingMode.BOUNCE, geometryStack, frictionModel, placer);
 //        frictionModel.getRegions().add(new FrictionModel.Region(
 //                new Disk(new V(borders.getMidX(), borders.getMaxY()), borders.getWidth()/2), 3, Color.YELLOW));
@@ -103,6 +102,7 @@ public class MyActivity extends Activity {
 //        board.add(new Checker(130,200, 20,0,0));
 //        board.add(new Checker(52,52, 40,0,0));
         final ScaleModel scaleModel = new ScaleModel(borders);
+        ImageCache.init(getResources());
         final VBoard vBoard = new VBoard(board, scaleModel, players);
         mLunarView.setOnTouchListener(new View.OnTouchListener() {
 
