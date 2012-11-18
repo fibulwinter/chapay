@@ -3,6 +3,7 @@ package net.fibulwinter.view;
 import android.graphics.*;
 import android.util.Log;
 import android.view.MotionEvent;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import net.fibulwinter.R;
 import net.fibulwinter.geometry.Disk;
@@ -17,8 +18,9 @@ import net.fibulwinter.geometry.V;
 import net.fibulwinter.utils.ColorUtils;
 import net.fibulwinter.utils.RandUtils;
 
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
+
+import static com.google.common.collect.Lists.newArrayList;
 
 public class VBoard implements IVisualizer{
 
@@ -45,19 +47,42 @@ public class VBoard implements IVisualizer{
 //        drawBorder(canvas);
         drawFrictions(canvas);
         drawObstacles(canvas);
-        for(Checker checker:board.getCheckers()){
-            int imageResource = checker.getColor() == Color.BLACK ? R.drawable.black : R.drawable.white;
+        ArrayList<Checker> checkers = newArrayList(board.getCheckers());
+        Collections.sort(checkers, new Comparator<Checker>() {
+            @Override
+            public int compare(Checker checker, Checker checker1) {
+                return Double.compare(checker.getDynamicBody().getCenter().getY(),checker1.getDynamicBody().getCenter().getY());
+            }
+        });
+        for(Checker checker:checkers){
+            int imageResource = checker.getColor() == Color.BLACK ? R.drawable.black2 : R.drawable.white2;
             //            paint.setColor(getColor(checker));
 
             Disk disk = checker.getDisk();
             PointF centerPoint = scaleModel.fromModel(disk.getCenter());
-            float r = scaleModel.fromModel(disk.getRadius());
+            float rx = scaleModel.fromModelWidth(disk.getRadius());
+            float ry = scaleModel.fromModelWidth(disk.getRadius());
 //            canvas.drawOval(new RectF(centerPoint.x-r,centerPoint.y-r,centerPoint.x+r,centerPoint.y+r), paint);
+/*
             if(actingColor==checker.getColor() && !board.isAnyMoving()){
                 float k = 1.4f;
-                canvas.drawBitmap(ImageCache.get().get(R.drawable.sel, (int) scaleModel.fromModel(checker.getDisk().getRadius() * 2*k)), centerPoint.x - r* k, centerPoint.y - r* k, null);
+                canvas.drawBitmap(ImageCache.get().get(R.drawable.sel,
+                        (int) scaleModel.fromModelWidth(checker.getDisk().getRadius() * 2*k),
+                        (int) scaleModel.fromModelHeight(checker.getDisk().getRadius() * 2*k)
+                ), centerPoint.x - rx* k, centerPoint.y - ry* k, null);
             }
-            canvas.drawBitmap(ImageCache.get().get(imageResource, (int) scaleModel.fromModel(checker.getDisk().getRadius() * 2)), centerPoint.x - r, centerPoint.y - r, null);
+*/
+            Paint paint = new Paint();
+            if(actingColor==checker.getColor() && !board.isAnyMoving()){
+                paint.setColor(Color.RED);
+                ColorFilter filter = new LightingColorFilter(Color.RED, 1);
+                paint.setColorFilter(filter);
+            }else{
+            }
+            canvas.drawBitmap(ImageCache.get().get(imageResource,
+                    (int) scaleModel.fromModelWidth(checker.getDisk().getRadius() * 2),
+                    (int) scaleModel.fromModelWidth(checker.getDisk().getRadius() * 2)
+            ), centerPoint.x - rx, centerPoint.y - ry, paint);
         }
     }
 
@@ -89,15 +114,14 @@ public class VBoard implements IVisualizer{
     }
 
     private void drawFrictions(Canvas canvas) {
-        Paint paint = new Paint();
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        for(Region region:board.getGeometryStack().getRegions()){
-            Disk disk = region.getShape();
-            PointF c = scaleModel.fromModel(disk.getCenter());
-            float r = scaleModel.fromModel(disk.getRadius());
-            paint.setColor(region.getColor());
-            canvas.drawOval(new RectF(c.x-r,c.y-r,c.x+r,c.y+r), paint);
-        }
+        Rectangle borders = board.getLevel().getBorders();
+        Bitmap logicalBitmap=board.getLevel().getLogicalBitmap();
+//        canvas.drawBitmap(logicalBitmap, 0,0, null);
+
+        PointF pMin = scaleModel.fromModel(borders.getRelative(0,0));
+        PointF pMax = scaleModel.fromModel(borders.getRelative(1,1));
+        canvas.drawBitmap(logicalBitmap, new Rect(0,0,logicalBitmap.getWidth(),logicalBitmap.getHeight()),
+                new Rect((int)pMin.x,(int)pMin.y,(int)pMax.x,(int)pMax.y), null);
     }
 
     private int getColor(Checker checker){
@@ -137,7 +161,7 @@ public class VBoard implements IVisualizer{
             double timeSec = (System.currentTimeMillis() - pressedTime+1)/1000.0;
             Checker closest=board.getClosest(actingColor, startPos, 100);
             if(closest!=null){
-                if(subtract.getLength()>20){
+                if(subtract.getLength()>Checker.RADIUS){
                     double speed=subtract.getLength()/timeSec*0.03;
                     if(speed>5){
                         Log.e("Chapay","speed="+speed);

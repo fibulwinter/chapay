@@ -3,6 +3,8 @@ package net.fibulwinter.physic;
 import com.google.common.base.Optional;
 import net.fibulwinter.geometry.Disk;
 import net.fibulwinter.geometry.LineSegment;
+import net.fibulwinter.model.Checker;
+import net.fibulwinter.model.Level;
 import net.fibulwinter.utils.PairOperation;
 import net.fibulwinter.geometry.V;
 
@@ -15,10 +17,10 @@ public class Continuum {
 
     private List<Body> bodies=newArrayList();
     private double time=0.0;
-    private FrictionModel frictionModel;
+    private final Level level;
 
-    public Continuum(FrictionModel frictionModel) {
-        this.frictionModel = frictionModel;
+    public Continuum(Level level) {
+        this.level = level;
     }
 
     public List<Body> getBodies() {
@@ -35,7 +37,7 @@ public class Continuum {
             double timeStep = Math.min(TIME_QUANTUM, targetTime - time);
             time+= timeStep;
             for(Body body:bodies){
-                body.move(timeStep, frictionModel.getFriction(body.getCenter()));
+                body.move(timeStep, level.getFriction(body.getCenter()));
             }
             for (int i = 0, bodiesSize = bodies.size(); i < bodiesSize; i++) {
                 Body body1 = bodies.get(i);
@@ -134,7 +136,7 @@ public class Continuum {
     V delta = (bodyB.getCenter().subtract(bodyA.getCenter()));
     double d = delta.getLength();
     // minimum translation distance to push balls apart after intersecting
-    V mtd = delta.scale(((20+20)-d)/d);
+    V mtd = delta.scale(((Checker.RADIUS*2)-d)/d);
 
 
     // resolve intersection --

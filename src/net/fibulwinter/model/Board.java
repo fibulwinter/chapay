@@ -6,7 +6,6 @@ import com.google.common.collect.Sets;
 import net.fibulwinter.geometry.GeometryStack;
 import net.fibulwinter.physic.Continuum;
 import net.fibulwinter.geometry.Disk;
-import net.fibulwinter.physic.FrictionModel;
 import net.fibulwinter.physic.StaticBody;
 import net.fibulwinter.geometry.Rectangle;
 import net.fibulwinter.geometry.V;
@@ -21,23 +20,17 @@ import static net.fibulwinter.utils.RandUtils.mix;
 public class Board implements IModel {
 
     private Continuum continuum;
-    private final FlyTypeModel flyTypeModel;
+    private final Level level;
 
-    private Rectangle borders;
     private BouncingMode bouncingMode=BouncingMode.STOP;
-    private final GeometryStack geometryStack;
-    private final FrictionModel frictionModel;
     private List<Checker> checkers = newArrayList();
     private Placer placer;
 
-    public Board(Rectangle borders, BouncingMode bouncingMode, GeometryStack geometryStack, FrictionModel frictionModel, Placer placer) {
-        this.borders = borders;
+    public Board(BouncingMode bouncingMode, Level level, Placer placer) {
         this.bouncingMode = bouncingMode;
-        this.geometryStack = geometryStack;
-        this.frictionModel = frictionModel;
+        this.level = level;
         this.placer = placer;
-        flyTypeModel = new FlyTypeModel(geometryStack);
-        continuum = new Continuum(frictionModel);
+        continuum = new Continuum(level);
 //        continuum.getBodies().addAll(StaticBody.asClosed(
 //                borders.getRelative(0.4, 0.5),
 //                borders.getRelative(0.5, 0.6),
@@ -45,12 +38,13 @@ public class Board implements IModel {
 //                borders.getRelative(0.5, 0.4)
 //        ));
         if(bouncingMode==BouncingMode.BOUNCE){
+            Rectangle borders = level.getBorders();
             continuum.getBodies().add(StaticBody.fromTo(
-                    borders.getRelative(0,0), borders.getRelative(1,0)));
+                    borders.getRelative(0, 0), borders.getRelative(1, 0)));
             continuum.getBodies().add(StaticBody.fromTo(
                     borders.getRelative(1,0), borders.getRelative(1,1)));
             continuum.getBodies().add(StaticBody.fromTo(
-                    borders.getRelative(1,1), borders.getRelative(0,1)));
+                    borders.getRelative(1, 1), borders.getRelative(0, 1)));
             continuum.getBodies().add(StaticBody.fromTo(
                     borders.getRelative(0,1), borders.getRelative(0,0)));
 
@@ -68,8 +62,8 @@ public class Board implements IModel {
         return Collections.unmodifiableList(checkers);
     }
 
-    public GeometryStack getGeometryStack() {
-        return geometryStack;
+    public Level getLevel() {
+        return level;
     }
 
     public void add(Checker checker){
@@ -82,7 +76,7 @@ public class Board implements IModel {
     }
 
     public Rectangle getBorders() {
-        return borders;
+        return getLevel().getBorders();
     }
 
     public void regenerate(){
@@ -129,7 +123,7 @@ public class Board implements IModel {
         for (Iterator<Checker> iterator = checkers.iterator(); iterator.hasNext(); ) {
             Checker checker = iterator.next();
             boolean kill=false;
-            switch (flyTypeModel.getFlyType(checker.getDisk().getCenter())) {
+            switch (level.getFlyType(checker.getDisk().getCenter())) {
                 case PIT:
                     kill=true;
                     break;
@@ -191,6 +185,7 @@ public class Board implements IModel {
 
 
     private boolean isOutside(Disk checker){
+        Rectangle borders = getLevel().getBorders();
         return (checker.getCenter().getX()+checker.getRadius()<borders.getMinX()) ||
                 (checker.getCenter().getX()-checker.getRadius()>borders.getMaxX()) ||
                 (checker.getCenter().getY()+checker.getRadius()<borders.getMinY()) ||

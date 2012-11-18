@@ -11,20 +11,18 @@ import java.util.Iterator;
 
 public class RandomPlacer implements Placer {
     private int count;
-    private double radius;
     private Iterator<Integer> players;
 
-    public RandomPlacer(int count, double radius, Iterator<Integer> players) {
+    public RandomPlacer(int count, Iterator<Integer> players) {
         this.count = count;
-        this.radius = radius;
         this.players = players;
     }
 
     @Override
     public void setupCheckers(Board board) {
         for(int i=0;i<count;i++){
-            V pos=randomPos(board,radius);
-            Checker checker = new Checker(pos.getX(), pos.getY(), radius, players.next());
+            V pos=randomPos(board,Checker.RADIUS);
+            Checker checker = new Checker(pos.getX(), pos.getY(), players.next());
             board.add(checker);
         }
     }

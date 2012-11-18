@@ -5,16 +5,18 @@ import net.fibulwinter.geometry.Disk;
 import net.fibulwinter.geometry.V;
 
 public class Checker {
+    public static final double RADIUS=15;
+
     private int color;
     private DynamicBody dynamicBody;
     private Disk disk;
     private boolean dead=false;
 
-    public Checker(double x, double y, double radius, int color) {
+    public Checker(double x, double y, int color) {
         this.color = color;
-        this.disk=new Disk(new V(x,y), radius);
+        this.disk=new Disk(new V(x,y), RADIUS);
         dynamicBody =new DynamicBody(disk, 1.0, new V(0,0));
-        dynamicBody.setMaxSpeed(radius*2);
+        dynamicBody.setMaxSpeed(RADIUS*2);
     }
 
     public int getColor() {
