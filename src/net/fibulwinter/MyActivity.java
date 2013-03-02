@@ -55,12 +55,16 @@ public class MyActivity extends Activity {
         Rectangle borders = new Rectangle(new V(205,160), 410, 300);
         GeometryStack geometryStack = new GeometryStack();
 //        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5, 0.5), 100), Color.MAGENTA).friction(-1));
-        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5, 0.5), 300), Color.parseColor("#7CFC00")).flyType(FlyType.GRASS));
-        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5, 0.5), 30), Color.parseColor("#8B4513")).flyType(FlyType.PIT));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5, 0.5), 300), Color.parseColor("#7CFC00")).flyType(FlyType.GRASS).friction(1));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.5, 0.5), 60), Color.parseColor("#20B2AA")).flyType(FlyType.WATER));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.25, 0.33), 40), Color.parseColor("#20B2AA")).flyType(FlyType.WATER));
+        geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.75, 0.67), 40), Color.parseColor("#20B2AA")).flyType(FlyType.WATER));
+/*
         geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.3, 0.75), 40), Color.parseColor("#20B2AA")).flyType(FlyType.WATER));
         geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.7, 0.75), 40), Color.parseColor("#20B2AA")).flyType(FlyType.WATER));
         geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.3, 0.25), 40), Color.parseColor("#20B2AA")).flyType(FlyType.WATER));
         geometryStack.getRegions().add(new Region(new Disk(borders.getRelative(0.7, 0.25), 40), Color.parseColor("#20B2AA")).flyType(FlyType.WATER));
+*/
 //        Placer placer = new RandomPlacer(10, 20, players);
         Level level = new Level(borders, geometryStack);
         Placer placer = new LinearPlacer(10, players);

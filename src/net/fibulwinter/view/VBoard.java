@@ -45,7 +45,7 @@ public class VBoard implements IVisualizer{
         scaleModel.updateViewSize(canvas.getWidth(), canvas.getHeight());
         clearCanvas(canvas);
 //        drawBorder(canvas);
-        drawFrictions(canvas);
+//        drawFrictions(canvas);
         drawObstacles(canvas);
         ArrayList<Checker> checkers = newArrayList(board.getCheckers());
         Collections.sort(checkers, new Comparator<Checker>() {
@@ -61,7 +61,7 @@ public class VBoard implements IVisualizer{
             Disk disk = checker.getDisk();
             PointF centerPoint = scaleModel.fromModel(disk.getCenter());
             float rx = scaleModel.fromModelWidth(disk.getRadius());
-            float ry = scaleModel.fromModelWidth(disk.getRadius());
+            float ry = scaleModel.fromModelHeight(disk.getRadius());
 //            canvas.drawOval(new RectF(centerPoint.x-r,centerPoint.y-r,centerPoint.x+r,centerPoint.y+r), paint);
 /*
             if(actingColor==checker.getColor() && !board.isAnyMoving()){
@@ -79,10 +79,8 @@ public class VBoard implements IVisualizer{
                 paint.setColorFilter(filter);
             }else{
             }
-            canvas.drawBitmap(ImageCache.get().get(imageResource,
-                    (int) scaleModel.fromModelWidth(checker.getDisk().getRadius() * 2),
-                    (int) scaleModel.fromModelWidth(checker.getDisk().getRadius() * 2)
-            ), centerPoint.x - rx, centerPoint.y - ry, paint);
+            Bitmap bitmap = ImageCache.get().get(imageResource, (int) rx * 2);
+            canvas.drawBitmap(bitmap, centerPoint.x - rx, centerPoint.y + ry-bitmap.getHeight(), paint);
         }
     }
 
@@ -135,9 +133,15 @@ public class VBoard implements IVisualizer{
     private void clearCanvas(Canvas canvas) {
         Paint paint = new Paint();
         paint.setColor(Color.BLACK);
-        canvas.drawRect(0,0,canvas.getWidth(),canvas.getHeight(), paint);
-        Bitmap bitmap = ImageCache.get().get(R.drawable.level, canvas.getWidth(), canvas.getHeight());
-        canvas.drawBitmap(bitmap,0,0,null);
+        canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), paint);
+        Rectangle borders = board.getBorders();
+        PointF pMin = scaleModel.fromModel(borders.getRelative(0, 0));
+        PointF pMax = scaleModel.fromModel(borders.getRelative(1, 1));
+        Rect viewRect = new Rect((int) pMin.x, (int) pMin.y, (int) pMax.x, (int) pMax.y);
+
+        Bitmap bitmap = ImageCache.get().get(R.drawable.field3, viewRect.width(), viewRect.height());
+        canvas.drawBitmap(bitmap,new Rect(0,0,bitmap.getWidth(),bitmap.getHeight()),
+                viewRect, null);
     }
 
     private V startPos=null;
